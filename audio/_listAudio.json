@@ -1,0 +1,20 @@
+[
+    {
+      "title": "Song 1",
+      "author": "Artist 1",
+      "duration": "03:45",
+      "filename": "song1.mp3"
+    },
+    {
+      "title": "Song 2",
+      "author": "Artist 2",
+      "duration": "04:30",
+      "filename": "song2.mp3"
+    },
+    {
+      "title": "Song 3",
+      "author": "Artist 3",
+      "duration": "02:50",
+      "filename": "song3.mp3"
+    }
+  ]

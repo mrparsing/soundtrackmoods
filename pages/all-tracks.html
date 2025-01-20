@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Songs</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #121212;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #000;
+            padding: 10px 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1DB954;
+        }
+
+        .navbar .menu {
+            display: flex;
+            gap: 15px;
+        }
+
+        .navbar .menu a {
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+        }
+
+        .navbar .menu a:hover {
+            color: #1DB954;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .song-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .song-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid #333;
+            transition: background-color 0.3s;
+        }
+
+        .song-item:hover {
+            background-color: #1DB954;
+        }
+
+        .song-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .song-title {
+            font-size: 18px;
+            font-weight: bold;
+            flex: 2;
+            color: white;
+        }
+
+        .song-author,
+        .song-duration {
+            font-size: 14px;
+            color: #ccc;
+            flex: 1;
+        }
+
+        .play-button {
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .play-button:hover {
+            background-color: #1AA34A;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="logo">soundtrackmoods</div>
+        <div class="menu">
+            <a href="#">Home</a>
+            <a href="#">All Songs</a>
+            <a href="#">Create Playlist</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2>All Songs</h2>
+        <ul class="song-list" id="songList">
+            <!-- Songs will be dynamically added here -->
+        </ul>
+    </div>
+
+    <script>
+        // Path della cartella con i file MP3
+        const audioFolderPath = '../audio/';
+        
+        // Funzione per caricare il file JSON
+        function loadSongList() {
+            fetch('../audio/_listAudio.json')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(song => {
+                        addSongToList(song);
+                    });
+                })
+                .catch(error => {
+                    console.error('Errore nel caricare il file JSON:', error);
+                });
+        }
+
+        // Funzione per aggiungere la canzone alla lista
+        function addSongToList(song) {
+            const songListElement = document.getElementById('songList');
+
+            const songItem = document.createElement('li');
+            songItem.className = 'song-item';
+
+            songItem.innerHTML = `
+                <div class="song-info">
+                    <div class="song-title">${song.title}</div>
+                    <div class="song-author">${song.author}</div>
+                    <div class="song-duration">${song.duration}</div>
+                </div>
+                <button class="play-button" onclick="playSong('${audioFolderPath}${song.filename}')">Play</button>
+            `;
+
+            songListElement.appendChild(songItem);
+        }
+
+        // Funzione per riprodurre la canzone
+        function playSong(audioURL) {
+            const audio = new Audio(audioURL);
+            audio.play();
+        }
+
+        // Carica la lista delle canzoni quando la pagina è pronta
+        loadSongList();
+    </script>
+
+</body>
+</html>
