@@ -87,6 +87,7 @@
         }
 
         // Funzione per riprodurre la canzone
+        // Funzione per riprodurre la canzone
         function playSong(index) {
             if (currentAudio && !currentAudio.paused) {
                 currentAudio.pause(); // Metti in pausa la canzone corrente
@@ -109,6 +110,14 @@
                 nextSong();
             };
 
+            // Aggiungi l'evento ontimeupdate solo quando l'audio inizia a riprodursi
+            currentAudio.ontimeupdate = function () {
+                if (!currentAudio.paused) {
+                    const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+                    document.getElementById('progressBar').value = progress;
+                }
+            };
+
             // Riprendi la canzone e aggiorna lo stato del player
             currentAudio.play();
 
@@ -119,7 +128,6 @@
             // Mostra il player
             document.getElementById('player').classList.add('show');
         }
-
         // Funzione per salvare lo stato del player
         function savePlayerState() {
             const playerState = {
