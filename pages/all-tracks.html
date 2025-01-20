@@ -225,17 +225,17 @@
         let songs = [];
         let isPlaying = false;
 
-        // Funzione per caricare il file JSON
+        // Funzione per caricare la lista delle canzoni
         function loadSongList() {
             fetch('../audio/_listAudio.json')
                 .then(response => response.json())
                 .then(data => {
-                    songs = data; // Save the songs list
+                    songs = data;
                     data.forEach((song, index) => {
                         addSongToList(song, index);
                     });
 
-                    // Ripristina la canzone se c'è uno stato salvato
+                    // Ripristina lo stato del player (se c'è uno stato salvato)
                     restorePlayerState();
                 })
                 .catch(error => {
@@ -283,11 +283,15 @@
                 nextSong();
             };
 
+            // Imposta l'evento 'play' per salvare lo stato quando la canzone inizia
+            currentAudio.onplay = () => {
+                savePlayerState(); // Salva lo stato quando la canzone inizia a suonare
+            };
+
             // Riprendi la canzone e aggiorna lo stato del player
             currentAudio.play();
-            savePlayerState();
 
-            // Update player UI
+            // Aggiorna l'interfaccia del player
             document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
             document.getElementById('playPauseBtn').innerText = 'Pause';
 
@@ -300,7 +304,7 @@
             const playerState = {
                 songIndex: currentSongIndex,
                 isPlaying: !currentAudio.paused,
-                currentTime: currentAudio.currentTime,
+                currentTime: currentAudio.currentTime, // Salva il tempo corrente solo quando la canzone è in play
                 songTitle: songs[currentSongIndex].title,
                 songCover: songs[currentSongIndex].cover
             };
@@ -332,6 +336,7 @@
                     document.getElementById('playPauseBtn').innerText = 'Play';
                 }
 
+                // Aggiorna l'interfaccia del player
                 document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
                 document.getElementById('player').classList.add('show');
             }
@@ -360,6 +365,7 @@
             prevSong();
         };
 
+        // Funzioni per passare alla canzone successiva e precedente
         function nextSong() {
             if (currentSongIndex < songs.length - 1) {
                 currentSongIndex++;
@@ -392,9 +398,8 @@
             }
         };
 
-        // Load the songs when the page is ready
-        loadSongList();
-    </script>
+        // Carica la lista delle canzoni quando la pagina è pronta
+        loadSongList();    </script>
 
 </body>
 
