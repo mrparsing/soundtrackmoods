@@ -5,186 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Songs</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            color: white;
-            background-color: #121212;
-        }
-
-        /* Navbar Styles */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #000;
-            padding: 10px 20px;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        .navbar .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1DB954;
-        }
-
-        .navbar .menu {
-            display: flex;
-            gap: 15px;
-        }
-
-        .navbar .menu a {
-            text-decoration: none;
-            color: white;
-            font-size: 16px;
-        }
-
-        .navbar .menu a:hover {
-            color: #1DB954;
-        }
-
-        /* Main Content Styles */
-        .main-content {
-            margin-top: 80px;
-            padding: 20px;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-        }
-
-        .song-list {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .song-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 20px;
-            border-bottom: 1px solid #333;
-            transition: background-color 0.3s;
-        }
-
-        .song-item:hover {
-            background-color: #1DB954;
-        }
-
-        .song-info {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .song-title {
-            font-size: 18px;
-            font-weight: bold;
-            flex: 2;
-            color: white;
-        }
-
-        .song-author,
-        .song-duration {
-            font-size: 14px;
-            color: #ccc;
-            flex: 1;
-        }
-
-        .play-button {
-            background-color: #1DB954;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .play-button:hover {
-            background-color: #1AA34A;
-        }
-
-        /* Expanded Player */
-        .player {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 10vh;
-            /* Minimized height */
-            background-color: #00d24a;
-            color: white;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            transition: all 0.3s ease-in-out;
-            border-radius: 20px 20px 0 0;
-        }
-
-        .player.show {
-            display: flex;
-        }
-
-        .player.expanded {
-            height: 50vh;
-            /* Expanded height */
-        }
-
-        .player .cover {
-            width: 100px;
-            height: 100px;
-            margin-top: 20px;
-            background-color: #333;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .player.expanded .cover {
-            width: 200px;
-            /* Larger cover in expanded view */
-            height: 200px;
-        }
-
-        .player .controls {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .player button {
-            background-color: transparent;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .player button:hover {
-            color: #000;
-            background-color: white;
-            border-radius: 50%;
-        }
-
-        .expand-btn {
-            background-color: transparent;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .expand-btn:hover {
-            color: #000;
-            background-color: white;
-            border-radius: 50%;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/all-track_style.css">
 </head>
 
 <body>
@@ -215,6 +36,11 @@
             <button id="playPauseBtn">Play</button>
             <button id="nextBtn">→</button>
             <button class="expand-btn" id="expandBtn">🔲</button> <!-- Button for expanding -->
+        </div>
+
+        <!-- Barra di avanzamento della canzone -->
+        <div id="progressWrapper" class="progress-wrapper">
+            <input type="range" id="progressBar" value="0" max="100" step="1" class="progress-bar">
         </div>
     </div>
 
@@ -331,76 +157,79 @@
                     document.getElementById('playPauseBtn').innerText = 'Play';
                 }
 
-                // Aggiorna l'interfaccia del player
-                document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
+                // Aggiorna la copertura dell'immagine
+                document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${playerState.songCover})`;
+
+                // Mostra il player
                 document.getElementById('player').classList.add('show');
             }
         }
 
-        // Play/Pause toggle
-        document.getElementById('playPauseBtn').onclick = function () {
+        // Funzione per mettere in pausa la canzone
+        function togglePlayPause() {
             if (currentAudio.paused) {
                 currentAudio.play();
-                this.innerText = 'Pause';
-                savePlayerState(); // Salva lo stato ogni volta che cambia
+                document.getElementById('playPauseBtn').innerText = 'Pause';
             } else {
                 currentAudio.pause();
-                this.innerText = 'Play';
-                savePlayerState(); // Salva lo stato ogni volta che cambia
+                document.getElementById('playPauseBtn').innerText = 'Play';
             }
-        };
+        }
 
-        // Go to the next song
-        document.getElementById('nextBtn').onclick = function () {
-            nextSong();
-        };
-
-        // Go to the previous song
-        document.getElementById('prevBtn').onclick = function () {
-            prevSong();
-        };
-
-        // Funzioni per passare alla canzone successiva e precedente
+        // Funzione per passare alla canzone successiva
         function nextSong() {
             if (currentSongIndex < songs.length - 1) {
                 currentSongIndex++;
             } else {
-                currentSongIndex = 0;
+                currentSongIndex = 0; // Torna alla prima canzone
             }
             playSong(currentSongIndex);
         }
 
+        // Funzione per passare alla canzone precedente
         function prevSong() {
             if (currentSongIndex > 0) {
                 currentSongIndex--;
             } else {
-                currentSongIndex = songs.length - 1;
+                currentSongIndex = songs.length - 1; // Torna all'ultima canzone
             }
             playSong(currentSongIndex);
         }
 
-        // Toggle player expansion
+        // Funzione per espandere/ristorare il player
         document.getElementById('expandBtn').onclick = function () {
             const player = document.getElementById('player');
             const cover = document.getElementById('cover');
             player.classList.toggle('expanded');
+            const progressWrapper = document.getElementById('progressWrapper');
+
             if (player.classList.contains('expanded')) {
-                this.innerText = 'Minimize'; // Minimize icon
-                cover.style.display = 'block'; // Show cover when expanded
+                this.innerText = 'Minimize'; // Icona per ridurre
+                cover.style.display = 'block'; // Mostra l'immagine della copertura quando è espanso
+                progressWrapper.style.display = 'block'; // Mostra la barra di avanzamento quando è espanso
             } else {
-                this.innerText = 'Maximize'; // Maximize icon
-                cover.style.display = 'none'; // Hide cover when minimized
+                this.innerText = 'Maximize'; // Icona per espandere
+                cover.style.display = 'none'; // Nasconde l'immagine quando è ridotto
+                progressWrapper.style.display = 'none'; // Nasconde la barra di avanzamento quando è ridotto
             }
         };
 
-        // Carica la lista delle canzoni quando la pagina è pronta
-        loadSongList();
+        // Funzione per aggiornare la barra di avanzamento durante la riproduzione
+        currentAudio.ontimeupdate = function () {
+            if (!currentAudio.paused) {
+                const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+                document.getElementById('progressBar').value = progress;
+            }
+        };
 
-        // Salva lo stato prima che la pagina venga cambiata
-        window.addEventListener('beforeunload', function () {
-            savePlayerState(); // Salva lo stato prima che la pagina venga cambiata
+        // Funzione per interagire con la barra di avanzamento
+        document.getElementById('progressBar').addEventListener('input', function () {
+            const newTime = (this.value / 100) * currentAudio.duration;
+            currentAudio.currentTime = newTime;
         });
 
+        // Carica la lista delle canzoni all'avvio
+        loadSongList();
     </script>
 
 </body>
