@@ -283,11 +283,6 @@
                 nextSong();
             };
 
-            // Imposta l'evento 'play' per salvare lo stato quando la canzone inizia
-            currentAudio.onplay = () => {
-                savePlayerState(); // Salva lo stato quando la canzone inizia a suonare
-            };
-
             // Riprendi la canzone e aggiorna lo stato del player
             currentAudio.play();
 
@@ -399,7 +394,14 @@
         };
 
         // Carica la lista delle canzoni quando la pagina è pronta
-        loadSongList();    </script>
+        loadSongList();
+
+        // Salva lo stato prima che la pagina venga cambiata
+        window.addEventListener('beforeunload', function () {
+            savePlayerState(); // Salva lo stato prima che la pagina venga cambiata
+        });
+
+    </script>
 
 </body>
 
