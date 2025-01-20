@@ -79,7 +79,7 @@
 
         // Funzione per caricare il file JSON
         function loadSongList() {
-            fetch('../audio/_listAudio.json')
+            fetch('audio/_listAudio.json')
                 .then(response => response.json())
                 .then(data => {
                     songs = data; // Save the songs list
