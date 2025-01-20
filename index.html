@@ -77,34 +77,20 @@
         let songs = [];
         let isPlaying = false;
 
-        function playSong(index) {
-            if (currentAudio && !currentAudio.paused) {
-                currentAudio.pause();
-            }
-
-            currentSongIndex = index;
-            const song = songs[currentSongIndex];
-
-            // Crea un nuovo oggetto audio
-            currentAudio = new Audio(audioFolderPath + song.filename);
-            currentAudio.play();
-
-            // Salva lo stato della canzone
-            savePlayerState();
-
-            // Update player UI
-            document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
-            document.getElementById('playPauseBtn').innerText = 'Pause';
-
-            // Show the player
-            document.getElementById('player').classList.add('show');
-
-            // Setup event to handle audio ending
-            currentAudio.onended = () => {
-                nextSong();
-            };
+        function loadSongList() {
+            fetch('audio/_listAudio.json')
+                .then(response => response.json())
+                .then(data => {
+                    songs = data; // Save the songs list
+                    
+                    // Ripristina la canzone se c'è uno stato salvato
+                    restorePlayerState();
+                })
+                .catch(error => {
+                    console.error('Errore nel caricare il file JSON:', error);
+                });
         }
-        
+
         // Funzione per riprodurre la canzone
         function playSong(index) {
             if (currentAudio && !currentAudio.paused) {
