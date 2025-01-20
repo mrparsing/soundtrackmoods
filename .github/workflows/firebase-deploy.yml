@@ -24,14 +24,7 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools@latest
 
-      - name: Authenticate with Firebase
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-        run: |
-          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > ./firebase-key.json
-          export GOOGLE_APPLICATION_CREDENTIALS=./firebase-key.json
-
       - name: Deploy to Firebase Hosting
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ./firebase-key.json
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: firebase deploy --only hosting --project soundtrackmoods
