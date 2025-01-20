@@ -125,6 +125,7 @@
             if (playerState) {
                 currentSongIndex = playerState.songIndex;
                 const song = songs[currentSongIndex];
+                console.log(song);
 
                 // Riprendi la canzone
                 currentAudio = new Audio(audioFolderPath + song.filename);
