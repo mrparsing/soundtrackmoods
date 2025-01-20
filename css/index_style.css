@@ -1,0 +1,111 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+    background-color: #121212;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #000;
+    padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1DB954;
+}
+
+.navbar .menu {
+    display: flex;
+    gap: 10px;
+}
+
+.navbar .menu a {
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+}
+
+.navbar .menu a:hover {
+    color: #1DB954;
+}
+
+.main-content {
+    margin-top: 80px;
+    padding: 20px;
+}
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 50px 20px;
+    background: linear-gradient(135deg, #1DB954, #121212);
+    border-radius: 10px;
+    color: white;
+    margin-bottom: 40px;
+}
+
+.hero h1 {
+    font-size: 48px;
+    margin: 20px 0;
+}
+
+.hero p {
+    font-size: 18px;
+    margin: 20px 0;
+}
+
+.hero button {
+    background-color: #1DB954;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 16px;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+.hero button:hover {
+    background-color: #1AA34A;
+}
+
+.playlist-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.playlist {
+    background-color: #181818;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+    padding: 15px;
+    transition: transform 0.3s;
+}
+
+.playlist:hover {
+    transform: scale(1.05);
+}
+
+.playlist img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.playlist h3 {
+    margin-top: 10px;
+    font-size: 18px;
+    color: white;
+}
