@@ -107,6 +107,56 @@
         .play-button:hover {
             background-color: #1AA34A;
         }
+
+        /* Expanded Player */
+        .player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #1DB954;
+            color: white;
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease-in-out;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .player.show {
+            display: flex;
+        }
+
+        .player .cover {
+            width: 100px;
+            height: 100px;
+            background-color: #333;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .player .controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .player button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .player button:hover {
+            color: #000;
+            background-color: white;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
@@ -129,18 +179,30 @@
         </ul>
     </div>
 
+    <!-- Expanded Player -->
+    <div class="player" id="player">
+        <div class="cover" id="cover" style="background-image: url('');"></div>
+        <div class="controls">
+            <button id="prevBtn">←</button>
+            <button id="playPauseBtn">Play</button>
+            <button id="nextBtn">→</button>
+        </div>
+    </div>
+
     <script>
-        // Path della cartella con i file MP3
         const audioFolderPath = '../audio/';
-        let currentAudio = null; // Variabile per memorizzare il file audio attualmente in riproduzione
+        let currentAudio = null;
+        let currentSongIndex = -1; // To track the current song in the list
+        let songs = [];
 
         // Funzione per caricare il file JSON
         function loadSongList() {
             fetch('../audio/_listAudio.json')
                 .then(response => response.json())
                 .then(data => {
-                    data.forEach(song => {
-                        addSongToList(song);
+                    songs = data; // Save the songs list
+                    data.forEach((song, index) => {
+                        addSongToList(song, index);
                     });
                 })
                 .catch(error => {
@@ -149,7 +211,7 @@
         }
 
         // Funzione per aggiungere la canzone alla lista
-        function addSongToList(song) {
+        function addSongToList(song, index) {
             const songListElement = document.getElementById('songList');
 
             const songItem = document.createElement('li');
@@ -161,25 +223,78 @@
                     <div class="song-author">${song.author}</div>
                     <div class="song-duration">${song.duration}</div>
                 </div>
-                <button class="play-button" onclick="playSong('${audioFolderPath}${song.filename}')">Play</button>
+                <button class="play-button" onclick="playSong(${index})">Play</button>
             `;
 
             songListElement.appendChild(songItem);
         }
 
         // Funzione per riprodurre la canzone
-        function playSong(audioURL) {
-            // Se c'è già una canzone in riproduzione, fermala prima di riprodurre la nuova
+        function playSong(index) {
             if (currentAudio && !currentAudio.paused) {
                 currentAudio.pause();
             }
 
+            currentSongIndex = index;
+            const song = songs[currentSongIndex];
+
             // Crea un nuovo oggetto audio
-            currentAudio = new Audio(audioURL);
+            currentAudio = new Audio(audioFolderPath + song.filename);
             currentAudio.play();
+
+            // Update player UI
+            document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`; // Assuming cover is in the JSON
+            document.getElementById('playPauseBtn').innerText = 'Pause';
+
+            // Show the player
+            document.getElementById('player').classList.add('show');
+
+            // Setup event to handle audio ending
+            currentAudio.onended = () => {
+                nextSong();
+            };
         }
 
-        // Carica la lista delle canzoni quando la pagina è pronta
+        // Play/Pause toggle
+        document.getElementById('playPauseBtn').onclick = function () {
+            if (currentAudio.paused) {
+                currentAudio.play();
+                this.innerText = 'Pause';
+            } else {
+                currentAudio.pause();
+                this.innerText = 'Play';
+            }
+        };
+
+        // Go to the next song
+        document.getElementById('nextBtn').onclick = function () {
+            nextSong();
+        };
+
+        // Go to the previous song
+        document.getElementById('prevBtn').onclick = function () {
+            prevSong();
+        };
+
+        function nextSong() {
+            if (currentSongIndex < songs.length - 1) {
+                currentSongIndex++;
+            } else {
+                currentSongIndex = 0;
+            }
+            playSong(currentSongIndex);
+        }
+
+        function prevSong() {
+            if (currentSongIndex > 0) {
+                currentSongIndex--;
+            } else {
+                currentSongIndex = songs.length - 1;
+            }
+            playSong(currentSongIndex);
+        }
+
+        // Load the songs when the page is ready
         loadSongList();
     </script>
 
