@@ -263,30 +263,36 @@
         // Funzione per riprodurre la canzone
         function playSong(index) {
             if (currentAudio && !currentAudio.paused) {
-                currentAudio.pause();
+                currentAudio.pause(); // Metti in pausa la canzone corrente
             }
 
             currentSongIndex = index;
             const song = songs[currentSongIndex];
 
-            // Crea un nuovo oggetto audio
-            currentAudio = new Audio(audioFolderPath + song.filename);
-            currentAudio.play();
+            // Se non esiste un oggetto audio, lo creiamo. Se esiste, riutilizziamo l'istanza.
+            if (!currentAudio) {
+                currentAudio = new Audio(audioFolderPath + song.filename);
+            } else {
+                // Se l'audio è già caricato, aggiorniamo il file e il tempo
+                currentAudio.src = audioFolderPath + song.filename;
+                currentAudio.currentTime = 0; // Inizia dalla traccia all'inizio
+            }
 
-            // Salva lo stato della canzone
+            // Imposta l'evento 'ended' per passare alla traccia successiva
+            currentAudio.onended = () => {
+                nextSong();
+            };
+
+            // Riprendi la canzone e aggiorna lo stato del player
+            currentAudio.play();
             savePlayerState();
 
             // Update player UI
             document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
             document.getElementById('playPauseBtn').innerText = 'Pause';
 
-            // Show the player
+            // Mostra il player
             document.getElementById('player').classList.add('show');
-
-            // Setup event to handle audio ending
-            currentAudio.onended = () => {
-                nextSong();
-            };
         }
 
         // Funzione per salvare lo stato del player
@@ -308,8 +314,14 @@
                 currentSongIndex = playerState.songIndex;
                 const song = songs[currentSongIndex];
 
-                // Riprendi la canzone
-                currentAudio = new Audio(audioFolderPath + song.filename);
+                // Se l'oggetto audio non è ancora stato creato, lo creiamo
+                if (!currentAudio) {
+                    currentAudio = new Audio(audioFolderPath + song.filename);
+                } else {
+                    // Se già esiste, aggiorniamo il file e il tempo
+                    currentAudio.src = audioFolderPath + song.filename;
+                }
+
                 currentAudio.currentTime = playerState.currentTime;
 
                 if (playerState.isPlaying) {
@@ -382,7 +394,7 @@
 
         // Load the songs when the page is ready
         loadSongList();
-        </script>
+    </script>
 
 </body>
 
