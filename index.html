@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>soundtrackmoods - Home</title>
     <link rel="stylesheet" href="css/index_style.css">
+    <script src="js/script.js"></script>
 </head>
 
 <body>
@@ -15,15 +16,16 @@
 
     <div class="main-content">
         <div class="menu">
-            <button>All tracks</button>
-            <button>Create a playlist</button>
+            <a href="pages/all-tracks.html?tipo=all-tracks">All tracks</a>
         </div>
         <h2>Your Playlists</h2>
         <div class="playlist-section">
-            <div class="playlist">
-                <img src="https://via.placeholder.com/200" alt="Playlist Cover">
-                <h3>Top Hits</h3>
-            </div>
+            <a href="pages/all-tracks.html?tipo=workout">
+                <div class="playlist">
+                    <img src="https://via.placeholder.com/200" alt="Playlist Cover">
+                    <h3>Top Hits</h3>
+                </div>
+            </a>
             <div class="playlist">
                 <img src="https://via.placeholder.com/200" alt="Playlist Cover">
                 <h3>Relax & Unwind</h3>
@@ -58,165 +60,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Include the player here -->
-    <div class="player" id="player">
-        <div class="cover" id="cover" style="background-image: url('');"></div>
-        <div class="controls">
-            <button id="prevBtn">←</button>
-            <button id="playPauseBtn">Play</button>
-            <button id="nextBtn">→</button>
-            <button class="expand-btn" id="expandBtn">🔲</button>
-        </div>
-    </div>
-
-    <script>
-        const audioFolderPath = 'audio/';
-        let currentAudio = null;
-        let currentSongIndex = -1;
-        let songs = [];
-        let isPlaying = false;
-
-        function loadSongList() {
-            fetch('audio/_listAudio.json')
-                .then(response => response.json())
-                .then(data => {
-                    songs = data; // Save the songs list
-                    
-                    // Ripristina la canzone se c'è uno stato salvato
-                    restorePlayerState();
-                })
-                .catch(error => {
-                    console.error('Errore nel caricare il file JSON:', error);
-                });
-        }
-
-        // Funzione per riprodurre la canzone
-        function playSong(index) {
-            if (currentAudio && !currentAudio.paused) {
-                currentAudio.pause();
-            }
-
-            currentSongIndex = index;
-            const song = songs[currentSongIndex];
-
-            // Crea un nuovo oggetto audio
-            currentAudio = new Audio(audioFolderPath + song.filename);
-            currentAudio.play();
-
-            // Salva lo stato della canzone
-            savePlayerState();
-
-            // Update player UI
-            document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
-            document.getElementById('playPauseBtn').innerText = 'Pause';
-
-            // Show the player
-            document.getElementById('player').classList.add('show');
-
-            // Setup event to handle audio ending
-            currentAudio.onended = () => {
-                nextSong();
-            };
-        }
-
-        // Funzione per salvare lo stato del player
-        function savePlayerState() {
-            const playerState = {
-                songIndex: currentSongIndex,
-                isPlaying: !currentAudio.paused,
-                currentTime: currentAudio.currentTime,
-                songTitle: songs[currentSongIndex].title,
-                songCover: songs[currentSongIndex].cover
-            };
-            sessionStorage.setItem('playerState', JSON.stringify(playerState));
-        }
-
-        // Funzione per ripristinare lo stato del player
-        function restorePlayerState() {
-            const playerState = JSON.parse(sessionStorage.getItem('playerState'));
-            console.log("CIAO", playerState);
-            if (playerState) {
-                currentSongIndex = playerState.songIndex;
-                const song = songs[currentSongIndex];
-                console.log(song);
-
-                // Riprendi la canzone
-                currentAudio = new Audio(audioFolderPath + song.filename);
-                currentAudio.currentTime = playerState.currentTime;
-
-                if (playerState.isPlaying) {
-                    currentAudio.play();
-                    document.getElementById('playPauseBtn').innerText = 'Pause';
-                } else {
-                    currentAudio.pause();
-                    document.getElementById('playPauseBtn').innerText = 'Play';
-                }
-
-                document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
-                document.getElementById('player').classList.add('show');
-            }
-        }
-
-        // Play/Pause toggle
-        document.getElementById('playPauseBtn').onclick = function () {
-            if (currentAudio.paused) {
-                currentAudio.play();
-                this.innerText = 'Pause';
-                savePlayerState(); // Salva lo stato ogni volta che cambia
-            } else {
-                currentAudio.pause();
-                this.innerText = 'Play';
-                savePlayerState(); // Salva lo stato ogni volta che cambia
-            }
-        };
-
-        // Go to the next song
-        document.getElementById('nextBtn').onclick = function () {
-            nextSong();
-        };
-
-        // Go to the previous song
-        document.getElementById('prevBtn').onclick = function () {
-            prevSong();
-        };
-
-        function nextSong() {
-            if (currentSongIndex < songs.length - 1) {
-                currentSongIndex++;
-            } else {
-                currentSongIndex = 0;
-            }
-            playSong(currentSongIndex);
-        }
-
-        function prevSong() {
-            if (currentSongIndex > 0) {
-                currentSongIndex--;
-            } else {
-                currentSongIndex = songs.length - 1;
-            }
-            playSong(currentSongIndex);
-        }
-
-        // Toggle player expansion
-        document.getElementById('expandBtn').onclick = function () {
-            const player = document.getElementById('player');
-            const cover = document.getElementById('cover');
-            player.classList.toggle('expanded');
-            if (player.classList.contains('expanded')) {
-                this.innerText = 'Minimize'; // Minimize icon
-                cover.style.display = 'block'; // Show cover when expanded
-            } else {
-                this.innerText = 'Maximize'; // Maximize icon
-                cover.style.display = 'none'; // Hide cover when minimized
-            }
-        };
-
-        document.addEventListener("DOMContentLoaded", function () {
-            loadSongList();
-        });
-    </script>
 </body>
 
 </html>

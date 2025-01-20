@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Songs</title>
     <link rel="stylesheet" href="../css/all-track_style.css">
+    <script src="../js/script.js"></script>
 </head>
 
 <body>
@@ -31,198 +32,19 @@
     <!-- Expanded Player -->
     <div class="player" id="player">
         <div class="cover" id="cover" style="background-image: url('');"></div>
+        <div class="song-details">
+            <div id="songTitle" class="song-title"></div>
+            <div id="songAuthor" class="song-author"></div>
+        </div>
+        <div class="progress-wrapper" id="progressWrapper">
+            <input type="range" id="progressBar" class="progress-bar" value="0" min="0" max="100" step="0.1" />
+        </div>
         <div class="controls">
-            <button id="prevBtn">←</button>
-            <button id="playPauseBtn">Play</button>
-            <button id="nextBtn">→</button>
-            <button class="expand-btn" id="expandBtn">🔲</button> <!-- Button for expanding -->
+            <button id="prevBtn" class="control-btn">⏮️</button>
+            <button id="playPauseBtn" class="control-btn">⏯️</button>
+            <button id="nextBtn" class="control-btn">⏭️</button>
         </div>
     </div>
-
-    <script>
-        const audioFolderPath = '../audio/';
-        let currentAudio = null;
-        let currentSongIndex = -1;
-        let songs = [];
-        let isPlaying = false;
-
-        // Funzione per caricare la lista delle canzoni
-        function loadSongList() {
-            fetch('../audio/_listAudio.json')
-                .then(response => response.json())
-                .then(data => {
-                    songs = data;
-                    data.forEach((song, index) => {
-                        addSongToList(song, index);
-                    });
-
-                    // Ripristina lo stato del player (se c'è uno stato salvato)
-                    restorePlayerState();
-                })
-                .catch(error => {
-                    console.error('Errore nel caricare il file JSON:', error);
-                });
-        }
-
-        // Funzione per aggiungere la canzone alla lista
-        function addSongToList(song, index) {
-            const songListElement = document.getElementById('songList');
-            const songItem = document.createElement('li');
-            songItem.className = 'song-item';
-
-            songItem.innerHTML = `
-        <div class="song-info">
-            <div class="song-title">${song.title}</div>
-            <div class="song-author">${song.author}</div>
-            <div class="song-duration">${song.duration}</div>
-        </div>
-        <button class="play-button" onclick="playSong(${index})">Play</button>
-    `;
-            songListElement.appendChild(songItem);
-        }
-
-        // Funzione per riprodurre la canzone
-        function playSong(index) {
-            if (currentAudio && !currentAudio.paused) {
-                currentAudio.pause(); // Metti in pausa la canzone corrente
-            }
-
-            currentSongIndex = index;
-            const song = songs[currentSongIndex];
-
-            // Se non esiste un oggetto audio, lo creiamo. Se esiste, riutilizziamo l'istanza.
-            if (!currentAudio) {
-                currentAudio = new Audio(audioFolderPath + song.filename);
-            } else {
-                // Se l'audio è già caricato, aggiorniamo il file e il tempo
-                currentAudio.src = audioFolderPath + song.filename;
-                currentAudio.currentTime = 0; // Inizia dalla traccia all'inizio
-            }
-
-            // Imposta l'evento 'ended' per passare alla traccia successiva
-            currentAudio.onended = () => {
-                nextSong();
-            };
-
-            // Riprendi la canzone e aggiorna lo stato del player
-            currentAudio.play();
-
-            // Aggiorna l'interfaccia del player
-            document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
-            document.getElementById('playPauseBtn').innerText = 'Pause';
-
-            // Mostra il player
-            document.getElementById('player').classList.add('show');
-        }
-
-        // Funzione per salvare lo stato del player
-        function savePlayerState() {
-            const playerState = {
-                songIndex: currentSongIndex,
-                isPlaying: !currentAudio.paused,
-                currentTime: currentAudio.currentTime, // Salva il tempo corrente solo quando la canzone è in play
-                songTitle: songs[currentSongIndex].title,
-                songCover: songs[currentSongIndex].cover
-            };
-            sessionStorage.setItem('playerState', JSON.stringify(playerState));
-        }
-
-        // Funzione per ripristinare lo stato del player
-        function restorePlayerState() {
-            const playerState = JSON.parse(sessionStorage.getItem('playerState'));
-            if (playerState) {
-                currentSongIndex = playerState.songIndex;
-                const song = songs[currentSongIndex];
-
-                // Se l'oggetto audio non è ancora stato creato, lo creiamo
-                if (!currentAudio) {
-                    currentAudio = new Audio(audioFolderPath + song.filename);
-                } else {
-                    // Se già esiste, aggiorniamo il file e il tempo
-                    currentAudio.src = audioFolderPath + song.filename;
-                }
-
-                currentAudio.currentTime = playerState.currentTime;
-
-                if (playerState.isPlaying) {
-                    currentAudio.play();
-                    document.getElementById('playPauseBtn').innerText = 'Pause';
-                } else {
-                    currentAudio.pause();
-                    document.getElementById('playPauseBtn').innerText = 'Play';
-                }
-
-                // Aggiorna l'interfaccia del player
-                document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
-                document.getElementById('player').classList.add('show');
-            }
-        }
-
-        // Play/Pause toggle
-        document.getElementById('playPauseBtn').onclick = function () {
-            if (currentAudio.paused) {
-                currentAudio.play();
-                this.innerText = 'Pause';
-                savePlayerState(); // Salva lo stato ogni volta che cambia
-            } else {
-                currentAudio.pause();
-                this.innerText = 'Play';
-                savePlayerState(); // Salva lo stato ogni volta che cambia
-            }
-        };
-
-        // Go to the next song
-        document.getElementById('nextBtn').onclick = function () {
-            nextSong();
-        };
-
-        // Go to the previous song
-        document.getElementById('prevBtn').onclick = function () {
-            prevSong();
-        };
-
-        // Funzioni per passare alla canzone successiva e precedente
-        function nextSong() {
-            if (currentSongIndex < songs.length - 1) {
-                currentSongIndex++;
-            } else {
-                currentSongIndex = 0;
-            }
-            playSong(currentSongIndex);
-        }
-
-        function prevSong() {
-            if (currentSongIndex > 0) {
-                currentSongIndex--;
-            } else {
-                currentSongIndex = songs.length - 1;
-            }
-            playSong(currentSongIndex);
-        }
-
-        // Toggle player expansion
-        document.getElementById('expandBtn').onclick = function () {
-            const player = document.getElementById('player');
-            const cover = document.getElementById('cover');
-            player.classList.toggle('expanded');
-            if (player.classList.contains('expanded')) {
-                this.innerText = 'Minimize'; // Minimize icon
-                cover.style.display = 'block'; // Show cover when expanded
-            } else {
-                this.innerText = 'Maximize'; // Maximize icon
-                cover.style.display = 'none'; // Hide cover when minimized
-            }
-        };
-
-        // Carica la lista delle canzoni quando la pagina è pronta
-        loadSongList();
-
-        // Salva lo stato prima che la pagina venga cambiata
-        window.addEventListener('beforeunload', function () {
-            savePlayerState(); // Salva lo stato prima che la pagina venga cambiata
-        });
-
-    </script>
 
 </body>
 
