@@ -132,7 +132,8 @@
     <script>
         // Path della cartella con i file MP3
         const audioFolderPath = '../audio/';
-        
+        let currentAudio = null; // Variabile per memorizzare il file audio attualmente in riproduzione
+
         // Funzione per caricare il file JSON
         function loadSongList() {
             fetch('../audio/_listAudio.json')
@@ -168,8 +169,14 @@
 
         // Funzione per riprodurre la canzone
         function playSong(audioURL) {
-            const audio = new Audio(audioURL);
-            audio.play();
+            // Se c'è già una canzone in riproduzione, fermala prima di riprodurre la nuova
+            if (currentAudio && !currentAudio.paused) {
+                currentAudio.pause();
+            }
+
+            // Crea un nuovo oggetto audio
+            currentAudio = new Audio(audioURL);
+            currentAudio.play();
         }
 
         // Carica la lista delle canzoni quando la pagina è pronta
