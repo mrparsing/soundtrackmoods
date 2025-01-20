@@ -37,11 +37,6 @@
             <button id="nextBtn">→</button>
             <button class="expand-btn" id="expandBtn">🔲</button> <!-- Button for expanding -->
         </div>
-
-        <!-- Barra di avanzamento della canzone -->
-        <div id="progressWrapper" class="progress-wrapper">
-            <input type="range" id="progressBar" value="0" max="100" step="1" class="progress-bar">
-        </div>
     </div>
 
     <script>
@@ -87,7 +82,6 @@
         }
 
         // Funzione per riprodurre la canzone
-        // Funzione per riprodurre la canzone
         function playSong(index) {
             if (currentAudio && !currentAudio.paused) {
                 currentAudio.pause(); // Metti in pausa la canzone corrente
@@ -110,14 +104,6 @@
                 nextSong();
             };
 
-            // Aggiungi l'evento ontimeupdate solo quando l'audio inizia a riprodursi
-            currentAudio.ontimeupdate = function () {
-                if (!currentAudio.paused) {
-                    const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
-                    document.getElementById('progressBar').value = progress;
-                }
-            };
-
             // Riprendi la canzone e aggiorna lo stato del player
             currentAudio.play();
 
@@ -128,6 +114,7 @@
             // Mostra il player
             document.getElementById('player').classList.add('show');
         }
+
         // Funzione per salvare lo stato del player
         function savePlayerState() {
             const playerState = {
@@ -165,79 +152,76 @@
                     document.getElementById('playPauseBtn').innerText = 'Play';
                 }
 
-                // Aggiorna la copertura dell'immagine
-                document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${playerState.songCover})`;
-
-                // Mostra il player
+                // Aggiorna l'interfaccia del player
+                document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
                 document.getElementById('player').classList.add('show');
             }
         }
 
-        // Funzione per mettere in pausa la canzone
-        function togglePlayPause() {
+        // Play/Pause toggle
+        document.getElementById('playPauseBtn').onclick = function () {
             if (currentAudio.paused) {
                 currentAudio.play();
-                document.getElementById('playPauseBtn').innerText = 'Pause';
+                this.innerText = 'Pause';
+                savePlayerState(); // Salva lo stato ogni volta che cambia
             } else {
                 currentAudio.pause();
-                document.getElementById('playPauseBtn').innerText = 'Play';
+                this.innerText = 'Play';
+                savePlayerState(); // Salva lo stato ogni volta che cambia
             }
-        }
+        };
 
-        // Funzione per passare alla canzone successiva
+        // Go to the next song
+        document.getElementById('nextBtn').onclick = function () {
+            nextSong();
+        };
+
+        // Go to the previous song
+        document.getElementById('prevBtn').onclick = function () {
+            prevSong();
+        };
+
+        // Funzioni per passare alla canzone successiva e precedente
         function nextSong() {
             if (currentSongIndex < songs.length - 1) {
                 currentSongIndex++;
             } else {
-                currentSongIndex = 0; // Torna alla prima canzone
+                currentSongIndex = 0;
             }
             playSong(currentSongIndex);
         }
 
-        // Funzione per passare alla canzone precedente
         function prevSong() {
             if (currentSongIndex > 0) {
                 currentSongIndex--;
             } else {
-                currentSongIndex = songs.length - 1; // Torna all'ultima canzone
+                currentSongIndex = songs.length - 1;
             }
             playSong(currentSongIndex);
         }
 
-        // Funzione per espandere/ristorare il player
+        // Toggle player expansion
         document.getElementById('expandBtn').onclick = function () {
             const player = document.getElementById('player');
             const cover = document.getElementById('cover');
             player.classList.toggle('expanded');
-            const progressWrapper = document.getElementById('progressWrapper');
-
             if (player.classList.contains('expanded')) {
-                this.innerText = 'Minimize'; // Icona per ridurre
-                cover.style.display = 'block'; // Mostra l'immagine della copertura quando è espanso
-                progressWrapper.style.display = 'block'; // Mostra la barra di avanzamento quando è espanso
+                this.innerText = 'Minimize'; // Minimize icon
+                cover.style.display = 'block'; // Show cover when expanded
             } else {
-                this.innerText = 'Maximize'; // Icona per espandere
-                cover.style.display = 'none'; // Nasconde l'immagine quando è ridotto
-                progressWrapper.style.display = 'none'; // Nasconde la barra di avanzamento quando è ridotto
+                this.innerText = 'Maximize'; // Maximize icon
+                cover.style.display = 'none'; // Hide cover when minimized
             }
         };
 
-        // Funzione per aggiornare la barra di avanzamento durante la riproduzione
-        currentAudio.ontimeupdate = function () {
-            if (!currentAudio.paused) {
-                const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
-                document.getElementById('progressBar').value = progress;
-            }
-        };
+        // Carica la lista delle canzoni quando la pagina è pronta
+        loadSongList();
 
-        // Funzione per interagire con la barra di avanzamento
-        document.getElementById('progressBar').addEventListener('input', function () {
-            const newTime = (this.value / 100) * currentAudio.duration;
-            currentAudio.currentTime = newTime;
+        // Salva lo stato prima che la pagina venga cambiata
+        window.addEventListener('beforeunload', function () {
+            savePlayerState(); // Salva lo stato prima che la pagina venga cambiata
         });
 
-        // Carica la lista delle canzoni all'avvio
-        loadSongList();
     </script>
 
 </body>
