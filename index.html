@@ -77,41 +77,6 @@
         let songs = [];
         let isPlaying = false;
 
-        // Funzione per caricare il file JSON
-        function loadSongList() {
-            fetch('audio/_listAudio.json')
-                .then(response => response.json())
-                .then(data => {
-                    songs = data; // Save the songs list
-                    data.forEach((song, index) => {
-                        addSongToList(song, index);
-                    });
-
-                    // Ripristina la canzone se c'è uno stato salvato
-                    restorePlayerState();
-                })
-                .catch(error => {
-                    console.error('Errore nel caricare il file JSON:', error);
-                });
-        }
-
-        // Funzione per aggiungere la canzone alla lista
-        function addSongToList(song, index) {
-            const songListElement = document.getElementById('songList');
-            const songItem = document.createElement('li');
-            songItem.className = 'song-item';
-
-            songItem.innerHTML = `
-                <div class="song-info">
-                    <div class="song-title">${song.title}</div>
-                    <div class="song-author">${song.author}</div>
-                    <div class="song-duration">${song.duration}</div>
-                </div>
-                <button class="play-button" onclick="playSong(${index})">Play</button>
-            `;
-            songListElement.appendChild(songItem);
-        }
-
         // Funzione per riprodurre la canzone
         function playSong(index) {
             if (currentAudio && !currentAudio.paused) {
@@ -233,8 +198,9 @@
             }
         };
 
-        // Load the songs when the page is ready
-        loadSongList();
+        document.addEventListener("DOMContentLoaded", function () {
+            restorePlayerState();
+        });
     </script>
 </body>
 
