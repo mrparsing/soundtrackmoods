@@ -103,7 +103,7 @@ h2 {
     position: fixed;
     bottom: 0;
     width: 100%;
-    height: 20vh;
+    height: 25vh;
     /* Minimized height */
     background-color: #222;
     color: white;
@@ -372,4 +372,34 @@ h2 {
 
 .menu-options.show {
     display: block;
+}
+
+/* CSS per la sezione delle playlist */
+.playlist-section {
+    position: fixed; /* Fissa la posizione nella finestra */
+    top: 50%; /* Centra verticalmente */
+    left: 50%; /* Centra orizzontalmente */
+    transform: translate(-50%, -50%); /* Sposta la sezione indietro per centrarla perfettamente */
+    width: 80%; /* Imposta una larghezza (puoi modificarla in base al design) */
+    max-width: 600px; /* Imposta una larghezza massima per evitare che sia troppo larga */
+    padding: 20px;
+    background-color: #333; /* Imposta uno sfondo bianco per farla risaltare */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Aggiungi un'ombra per migliorare la visibilità */
+    border-radius: 10px;
+    z-index: 1000; /* Assicurati che sia sopra ad altri contenuti */
+    display: none; /* Inizialmente nascosta */
+    overflow-y: auto; /* Aggiungi lo scroll se il contenuto è troppo lungo */
+}
+
+.playlist-section h3 {
+    margin-top: 0; /* Rimuove il margine superiore */
+}
+
+.playlist-section label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.playlist-section input[type="checkbox"] {
+    margin-right: 10px;
 }
