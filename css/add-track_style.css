@@ -1,0 +1,82 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    background-color: #000;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1DB954;
+}
+
+.navbar .menu a {
+    color: white;
+    font-size: 16px;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.navbar .menu a:hover {
+    color: #1DB954;
+}
+
+.form-container {
+    margin-top: 60px;
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+    background-color: #222;
+    border-radius: 10px;
+}
+
+h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    font-size: 16px;
+    color: #ccc;
+}
+
+input[type="text"], input[type="file"], input[type="number"], input[type="time"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    background-color: #333;
+    border: 1px solid #555;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #1DB954;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #1AA34A;
+}

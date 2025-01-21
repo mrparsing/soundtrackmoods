@@ -35,10 +35,6 @@ body {
     font-size: 16px;
 }
 
-.navbar .menu a:hover {
-    color: #1DB954;
-}
-
 /* Main Content Styles */
 .main-content {
     margin-top: 80px;
@@ -254,4 +250,23 @@ h2 {
 .song-author {
     font-size: 14px;
     color: #ccc;
+}
+
+.menu a {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #1DB954, #1AA34A);
+    padding: 10px 20px;
+    border-radius: 50px;
+    transition: background-color 0.3s, transform 0.3s;
+    text-align: center;
+}
+
+.menu a:hover {
+    background-color: #1AA34A;
+    color: white;
+    transform: scale(1.1);
 }

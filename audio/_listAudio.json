@@ -3,16 +3,7 @@
       "title": "Snowman (Sing-A-Long)",
       "author": "Sia",
       "duration": "03:45",
-      "filename": "Sia - Snowman (Sing-A-Long) [Official Video]  Sia Snowman Karaoke.mp3",
       "cover": "../assets/snowmen.jpg",
-      "playlist": ""
-    },
-    {
-      "title": "Chandelier",
-      "author": "Sia",
-      "duration": "04:30",
-      "filename": "Sia - Chandelier (Official Video).mp3",
-      "cover": "../assets/snowmen.jpg",
-      "playlist": "workout"
+      "playlist": "top-hits"
     }
   ]

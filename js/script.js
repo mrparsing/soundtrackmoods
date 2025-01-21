@@ -18,9 +18,10 @@ function loadSongList() {
         .then(data => {
             // Ottieni il parametro 'tipo' dall'URL
             const tipo = getQueryParams();
+            console.log(tipo);
             // Filtra le canzoni in base al tipo di playlist
             if (tipo !== "all-tracks") {
-                filteredSongs = tipo ? data.filter(song => song.playlist === tipo) : data;
+                filteredSongs = tipo ? data.filter(song => song.playlist.includes(tipo)) : data;
                 songs = filteredSongs;
                 // Aggiungi le canzoni filtrate alla lista
                 filteredSongs.forEach((song, index) => {

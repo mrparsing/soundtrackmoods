@@ -20,46 +20,99 @@
         </div>
         <h2>Your Playlists</h2>
         <div class="playlist-section">
-            <a href="pages/all-tracks.html?tipo=workout">
-                <div class="playlist">
-                    <img src="https://via.placeholder.com/200" alt="Playlist Cover">
-                    <h3>Top Hits</h3>
-                </div>
-            </a>
-            <div class="playlist">
-                <img src="https://via.placeholder.com/200" alt="Playlist Cover">
-                <h3>Relax & Unwind</h3>
-            </div>
-            <div class="playlist">
-                <img src="https://via.placeholder.com/200" alt="Playlist Cover">
-                <h3>Workout Mix</h3>
-            </div>
-            <div class="playlist">
-                <img src="https://via.placeholder.com/200" alt="Playlist Cover">
-                <h3>Chill Vibes</h3>
-            </div>
+            
         </div>
 
         <h2>Artists</h2>
-        <div class="playlist-section">
-            <div class="playlist">
-                <img src="https://via.placeholder.com/200" alt="Playlist Cover">
-                <h3>Top Hits</h3>
-            </div>
-            <div class="playlist">
-                <img src="https://via.placeholder.com/200" alt="Playlist Cover">
-                <h3>Relax & Unwind</h3>
-            </div>
-            <div class="playlist">
-                <img src="https://via.placeholder.com/200" alt="Playlist Cover">
-                <h3>Workout Mix</h3>
-            </div>
-            <div class="playlist">
-                <img src="https://via.placeholder.com/200" alt="Playlist Cover">
-                <h3>Chill Vibes</h3>
-            </div>
+        <div class="playlist-section-author">
+            <!-- Le playlist verranno aggiunte dinamicamente qui -->
         </div>
     </div>
 </body>
+
+<script>
+    function loadPlaylistsFromAuthors() {
+        // Path al file JSON
+        const audioFolderPath = 'audio/';
+        const jsonFilePath = `${audioFolderPath}_listAudio.json`;
+
+        // Sezione dove aggiungere le playlist
+        const playlistSection = document.querySelector('.playlist-section-author');
+
+        // Legge il file JSON
+        fetch(jsonFilePath)
+            .then(response => response.json())
+            .then(data => {
+                // Estrae tutti gli autori e rimuove i duplicati
+                const authors = [...new Set(data.map(song => song.author))];
+
+                // Per ogni autore, crea una playlist
+                authors.forEach(author => {
+                    const playlistDiv = document.createElement('div');
+                    playlistDiv.className = 'playlist';
+
+                    playlistDiv.innerHTML = `
+                    <img src="https://via.placeholder.com/200" alt="Playlist Cover">
+                    <h3>${author}</h3>
+                `;
+
+                    playlistSection.appendChild(playlistDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Errore nel caricare il file JSON:', error);
+            });
+    }
+
+    function loadPlaylistsFromTracks() {
+        // Path al file JSON
+        const audioFolderPath = 'audio/';
+        const jsonFilePath = `${audioFolderPath}_listAudio.json`;
+
+        // Sezione dove aggiungere le playlist
+        const playlistSection = document.querySelector('.playlist-section');
+
+        // Legge il file JSON
+        fetch(jsonFilePath)
+            .then(response => response.json())
+            .then(data => {
+                // Estrae tutte le playlist da ogni canzone, separa quelle multiple e rimuove i duplicati
+                const playlists = [...new Set(
+                    data.flatMap(song => song.playlist.split(' - ').map(playlist => playlist.trim()))
+                )];
+
+                // Per ogni playlist unica, crea un elemento HTML
+                playlists.forEach(playlist => {
+                    const playlistDiv = document.createElement('a');
+                    playlistDiv.href = `pages/all-tracks.html?tipo=${encodeURIComponent(playlist)}`;
+                    playlistDiv.className = 'playlist-link';
+
+                    let img_src = `assets/${playlist}.jpg`;
+                    if (playlist === "") {
+                        img_src = `assets/default.jpg`;
+                    }
+
+                    playlistDiv.innerHTML = `
+                    <div class="playlist">
+                        <img src="${img_src}" alt="Playlist Cover">
+                        <h3>${playlist.charAt(0).toUpperCase() + playlist.slice(1)}</h3>
+                    </div>
+                `;
+
+                    playlistSection.appendChild(playlistDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Errore nel caricare il file JSON:', error);
+            });
+    }
+
+    // Chiama la funzione al caricamento della pagina
+    document.addEventListener('DOMContentLoaded', loadPlaylistsFromTracks);
+
+
+    // Chiama la funzione al caricamento della pagina
+    document.addEventListener('DOMContentLoaded', loadPlaylistsFromAuthors);
+</script>
 
 </html>

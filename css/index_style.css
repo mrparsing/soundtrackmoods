@@ -80,7 +80,7 @@ body {
     background-color: #1AA34A;
 }
 
-.playlist-section {
+.playlist-section, .playlist-section-author {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
@@ -91,7 +91,7 @@ body {
     border-radius: 10px;
     overflow: hidden;
     text-align: center;
-    padding: 15px;
+    /* padding: 15px; */
     transition: transform 0.3s;
 }
 
@@ -100,12 +100,35 @@ body {
 }
 
 .playlist img {
-    width: 100%;
+    width: 90%;
     border-radius: 10px;
 }
 
 .playlist h3 {
     margin-top: 10px;
-    font-size: 18px;
+    font-size: 30px;
     color: white;
+}
+
+.menu a {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #1DB954, #1AA34A);
+    padding: 10px 20px;
+    border-radius: 50px;
+    transition: background-color 0.3s, transform 0.3s;
+    text-align: center;
+}
+
+.menu a:hover {
+    background-color: #1AA34A;
+    color: white;
+    transform: scale(1.1);
+}
+
+a {
+    text-decoration: none;
 }

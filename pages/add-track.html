@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add track</title>
+    <link rel="stylesheet" href="../css/add-track_style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js"></script>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="logo">soundtrackmoods</div>
+        <div class="menu">
+            <a href="../index.html">Home</a>
+            <a href="all-tracks.html">All Songs</a>
+        </div>
+    </div>
+
+    <!-- Form per inserire un brano -->
+    <div class="form-container">
+        <h2>Inserisci un nuovo brano</h2>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Titolo del Brano</label>
+                <input type="text" id="title" name="title" required placeholder="Inserisci il titolo del brano">
+            </div>
+
+            <div class="form-group">
+                <label for="author">Autore</label>
+                <input type="text" id="author" name="author" required placeholder="Inserisci l'autore del brano">
+            </div>
+
+            <button type="submit">Carica Brano</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyABElssbFMChF1HvJkQY36Kes1kbvIM3UM",
+            authDomain: "soundtrackmoods.firebaseapp.com",
+            projectId: "soundtrackmoods",
+            storageBucket: "soundtrackmoods.firebasestorage.app",
+            messagingSenderId: "75386945766",
+            appId: "1:75386945766:web:4405cd8dcd7f0de681fb27"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        const database = firebase.database();
+        const storage = firebase.storage();
+
+        document.getElementById("uploadForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Evita che il form venga inviato normalmente
+
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+
+            // Utilizza un percorso immagine basato sul titolo (senza caricare un file)
+            // Puoi usare un URL di default o un percorso relativo per il momento
+            const coverFile = "assets/" + title.toLowerCase() + ".jpg"; // Imposta il percorso dell'immagine
+
+            // Ora possiamo salvare i dati nel database senza dover caricare fisicamente un file immagine
+            const newTrack = {
+                title: title,
+                author: author,
+                cover: coverFile, // Utilizza il percorso dell'immagine di copertura
+                playlist: [] // Playlist vuota all'inizio
+            };
+
+            // Salva il brano nella tabella "all-tracks" nel database Firebase
+            firebase.database().ref('all-tracks').push(newTrack)
+                .then(function () {
+                    alert('Brano caricato con successo!');
+                    // Resetta il modulo dopo l'invio
+                    document.getElementById('uploadForm').reset();
+                })
+                .catch(function (error) {
+                    console.error('Errore nel salvare il brano:', error);
+                    alert('Errore nel caricare il brano.');
+                });
+        });
+    </script>
+
+</body>
+
+</html>
