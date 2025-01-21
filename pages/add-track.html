@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js"></script>
     <link rel="stylesheet" href="../css/add-track_style.css">
+    <link rel="stylesheet" href="../css/all-track_style.css">
 </head>
 
 <body>
@@ -15,30 +16,31 @@
     <!-- Navbar -->
     <div class="navbar">
         <div class="logo">soundtrackmoods</div>
+    </div>
+    
+    <div class="main-content">
         <div class="menu">
             <a href="../index.html">Home</a>
             <a href="all-tracks.html">All Songs</a>
         </div>
+        <!-- Form per inserire un brano -->
+        <div class="form-container">
+            <h2>Inserisci un nuovo brano</h2>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="title">Titolo del Brano</label>
+                    <input type="text" id="title" name="title" required placeholder="Inserisci il titolo del brano">
+                </div>
+
+                <div class="form-group">
+                    <label for="author">Autore</label>
+                    <input type="text" id="author" name="author" required placeholder="Inserisci l'autore del brano">
+                </div>
+
+                <button type="submit">Carica Brano</button>
+            </form>
+        </div>
     </div>
-
-    <!-- Form per inserire un brano -->
-    <div class="form-container">
-        <h2>Inserisci un nuovo brano</h2>
-        <form id="uploadForm">
-            <div class="form-group">
-                <label for="title">Titolo del Brano</label>
-                <input type="text" id="title" name="title" required placeholder="Inserisci il titolo del brano">
-            </div>
-
-            <div class="form-group">
-                <label for="author">Autore</label>
-                <input type="text" id="author" name="author" required placeholder="Inserisci l'autore del brano">
-            </div>
-
-            <button type="submit">Carica Brano</button>
-        </form>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
@@ -68,7 +70,7 @@
             const newTrack = {
                 title: title,
                 author: author,
-                cover: "assets/" + title.toLowerCase() + ".jpg", // Usa un percorso basato sul titolo
+                cover: "../assets/" + title.toLowerCase() + ".jpg", // Usa un percorso basato sul titolo
                 playlist: [] // Playlist vuota all'inizio
             };
 

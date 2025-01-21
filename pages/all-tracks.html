@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Songs</title>
     <link rel="stylesheet" href="../css/all-track_style.css">
-    <script src="../js/script.js" type="module"></script>
+
 </head>
 
 <body>
@@ -14,14 +14,14 @@
     <!-- Navbar -->
     <div class="navbar">
         <div class="logo">soundtrackmoods</div>
-        <div class="menu">
-            <a href="../index.html">Home</a>
-            <a href="add-track.html" style="margin-right: 30px;">Add track</a>
-        </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
+        <div class="menu">
+            <a href="../index.html">Home</a>
+            <a href="add-track.html" style="margin-right: 30px;">Add track</a>
+        </div>
 
         <!-- Button to create new playlist -->
         <a id="createPlaylistBtn" class="create-playlist-btn">Create New Playlist</a>
@@ -60,7 +60,11 @@
     </div>
 
     <script type="module">
-
+        const audioFolderPath = '../audio/';
+        let currentAudio = null;
+        let currentSongIndex = -1;
+        let songs = [];
+        let isPlaying = false;
         function getQueryParams() {
             const url = window.location.href; // Ottieni l'URL completo della pagina
             const urlParams = new URLSearchParams(window.location.search); // Ottieni i parametri di query
@@ -187,16 +191,12 @@
                     // Ottieni l'array di brani dal documento
                     const data = docSnap.data();
                     const tracks = data.tracks;
+                    songs = tracks;
 
                     if (Array.isArray(tracks) && tracks.length > 0) {
                         // Stampa ogni brano nel log
                         tracks.forEach((track, index) => {
                             addSongToList(track, index, true);
-                            console.log(`Brano ${index + 1}:`);
-                            console.log(`Titolo: ${track.title}`);
-                            console.log(`Autore: ${track.author}`);
-                            console.log(`Copertura: ${track.cover}`);
-                            console.log("---------------------------");
                         });
                     } else {
                         console.log("Nessun brano trovato nella collezione.");
@@ -217,6 +217,29 @@
             document.addEventListener('DOMContentLoaded', getSongsByPlaylist(tipo));
         }
 
+        function getMp3Duration(filePath) {
+            return new Promise((resolve, reject) => {
+                const audio = new Audio();
+                audio.src = filePath;
+
+                // Aspetta che i metadati siano caricati
+                audio.addEventListener('loadedmetadata', () => {
+                    resolve(audio.duration); // Durata in secondi
+                });
+
+                audio.addEventListener('error', (error) => {
+                    reject(error); // Gestisci gli errori
+                });
+            });
+        }
+
+        function formatDuration(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}m ${remainingSeconds}s`;
+        }
+
+
         async function addSongToList(song, index, all_track) {
             console.log("all-tracks", all_track);
             const songListElement = document.getElementById('songList');
@@ -224,30 +247,90 @@
             songItem.className = 'song-item';
 
             let info_track;
+            let track_duration;
             if (!all_track) {
                 info_track = await getInfoTrack(song);
 
-
+                try {
+                    const durationInSeconds = await getMp3Duration(`../audio/${info_track.title}.mp3`);
+                    track_duration = formatDuration(durationInSeconds);
+                } catch (error) {
+                    console.error('Errore nel calcolare la durata:', error);
+                    track_duration = 'N/A';
+                }
                 songItem.innerHTML = `
         <div class="song-info">
             <div class="song-title">${info_track.title}</div>
             <div class="song-author">${info_track.author}</div>
-            <div class="song-duration">${song.duration}</div>
+            <div class="song-duration">${track_duration}</div>
         </div>
         <button class="play-button" onclick="playSong(${index})">Play</button>
+        <div class="menu-container">
+        <button class="menu-button" onclick="toggleMenu(${index})">⋮</button>
+        <ul class="menu-options" id="menu-${index}">
+            <li onclick="deleteSong(${index})">Delete</li>
+            <li onclick="togglePlaylist(${index})">Add/Remove from Playlist</li>
+        </ul>
+    </div>
     `;
             } else {
+                try {
+                    const durationInSeconds = await getMp3Duration(`../audio/${song.title}.mp3`);
+                    track_duration = formatDuration(durationInSeconds);
+                } catch (error) {
+                    console.error('Errore nel calcolare la durata:', error);
+                    track_duration = 'N/A';
+                }
+
                 songItem.innerHTML = `
         <div class="song-info">
             <div class="song-title">${song.title}</div>
             <div class="song-author">${song.author}</div>
-            <div class="song-duration">${song.duration}</div>
+            <div class="song-duration">${track_duration}</div>
         </div>
         <button class="play-button" onclick="playSong(${index})">Play</button>
+        <div class="menu-container">
+        <button class="menu-button" onclick="toggleMenu(${index})">⋮</button>
+        <ul class="menu-options" id="menu-${index}">
+            <li onclick="deleteSong(${index})">Delete</li>
+            <li onclick="togglePlaylist(${index})">Add/Remove from Playlist</li>
+        </ul>
+    </div>
     `;
             }
             songListElement.appendChild(songItem);
         }
+
+        window.toggleMenu = function toggleMenu(index) {
+            const menu = document.getElementById(`menu-${index}`);
+            menu.classList.toggle('show');
+        }
+
+        // Elimina la canzone dalla lista
+        function deleteSong(index) {
+            const songListElement = document.getElementById('songList');
+            const songItems = songListElement.getElementsByClassName('song-item');
+            if (songItems[index]) {
+                songListElement.removeChild(songItems[index]);
+                console.log(`Canzone con indice ${index} eliminata`);
+            }
+        }
+
+        // Aggiungi/rimuovi la canzone dalla playlist
+        function togglePlaylist(index) {
+            console.log(`Aggiungi/rimuovi canzone con indice ${index} dalla playlist`);
+            // Implementa la logica per aggiungere o rimuovere dalla playlist
+        }
+
+        // Nasconde i menu quando si clicca fuori
+        document.addEventListener('click', (event) => {
+            const isMenuButton = event.target.classList.contains('menu-button');
+            if (!isMenuButton) {
+                document.querySelectorAll('.menu-options').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
 
         async function getInfoTrack(trackTitle) {
             console.log(`Cerco informazioni per il brano: ${trackTitle}`);
@@ -289,6 +372,173 @@
                 return null; // Restituisce null in caso di errore
             }
         }
+
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            if (currentAudio) {
+                progressBar.value = (currentAudio.currentTime / currentAudio.duration) * 100;
+            }
+        }
+
+        // Cambia la posizione della traccia quando l'utente sposta il cursore
+        function seekAudio(event) {
+            if (currentAudio) {
+                const progressBar = event.target;
+                const newTime = (progressBar.value / 100) * currentAudio.duration;
+                currentAudio.currentTime = newTime;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('progressBar').addEventListener('input', seekAudio);
+        });
+
+        if (currentAudio) {
+            currentAudio.ontimeupdate = updateProgressBar;
+        }
+
+        // Funzione per riprodurre la canzone
+        window.playSong = function playSong(index) {
+            if (currentAudio && !currentAudio.paused) {
+                currentAudio.pause();
+            }
+
+            currentSongIndex = index;
+
+            const song = songs[currentSongIndex];
+
+            if (!currentAudio) {
+                currentAudio = new Audio(audioFolderPath + "../audio/Snowman.mp3");
+            } else {
+                currentAudio.src = audioFolderPath + "../audio/Snowman.mp3";
+                currentAudio.currentTime = 0;
+            }
+
+            currentAudio.ontimeupdate = updateProgressBar;
+            currentAudio.onended = nextSong;
+
+            currentAudio.play();
+
+            // Aggiorna il titolo e l'autore
+
+            document.getElementById('songTitle').textContent = song.title;
+            document.getElementById('songAuthor').textContent = song.author;
+
+            // Aggiorna l'interfaccia
+            document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
+            document.getElementById('playPauseBtn').innerText = 'Pause';
+
+            // Mostra il player
+            const player = document.getElementById('player');
+            player.classList.add('show');
+        }
+
+        function savePlayerState() {
+            const playerState = {
+                songIndex: currentSongIndex,
+                isPlaying: !currentAudio.paused,
+                currentTime: currentAudio.currentTime,
+                songTitle: songs[currentSongIndex]?.title,
+                songCover: songs[currentSongIndex]?.cover
+            };
+            sessionStorage.setItem('playerState', JSON.stringify(playerState));
+        }
+
+        // Funzione per ripristinare lo stato del player
+        function restorePlayerState(playerState) {
+
+            currentSongIndex = playerState.songIndex;
+            const song = songs[currentSongIndex];
+
+            // Se l'oggetto audio non è ancora stato creato, lo creiamo
+            if (!currentAudio) {
+                currentAudio = new Audio(audioFolderPath + song.filename);
+            } else {
+                // Se già esiste, aggiorniamo il file e il tempo
+                currentAudio.src = audioFolderPath + song.filename;
+            }
+
+            currentAudio.currentTime = playerState.currentTime;
+
+            if (playerState.isPlaying) {
+                currentAudio.play();
+                document.getElementById('playPauseBtn').innerText = 'Pause';
+            } else {
+                currentAudio.pause();
+                document.getElementById('playPauseBtn').innerText = 'Play';
+            }
+
+            // Aggiorna l'interfaccia del player
+            document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
+            document.getElementById('player').classList.add('show');
+
+        }
+
+        let isPlayerMaximazed = false;
+
+        // Play/Pause toggle
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('playPauseBtn').onclick = function (event) {
+                event.stopPropagation(); // Impedisce la propagazione al player
+                if (currentAudio.paused) {
+                    currentAudio.play();
+                    this.innerText = 'Pause';
+                    savePlayerState(); // Salva lo stato ogni volta che cambia
+                } else {
+                    currentAudio.pause();
+                    this.innerText = 'Play';
+                    savePlayerState(); // Salva lo stato ogni volta che cambia
+                }
+            };
+
+            // Go to the next song
+            document.getElementById('nextBtn').onclick = function (event) {
+                event.stopPropagation(); // Impedisce la propagazione al player
+                nextSong();
+            };
+
+            // Go to the previous song
+            document.getElementById('prevBtn').onclick = function (event) {
+                event.stopPropagation(); // Impedisce la propagazione al player
+                prevSong();
+            };
+
+            // Toggle player expansion
+            document.getElementById('player').onclick = function () {
+                const player = document.getElementById('player');
+                const cover = document.getElementById('cover');
+                player.classList.toggle('expanded');
+                isPlayerMaximazed = !isPlayerMaximazed;
+                if (isPlayerMaximazed) {
+                    document.getElementById('cover').style.display = "block";
+                } else {
+                    document.getElementById('cover').style.display = "none";
+                }
+            };
+        });
+
+        function nextSong() {
+            if (currentSongIndex < songs.length - 1) {
+                currentSongIndex++;
+            } else {
+                currentSongIndex = 0;
+            }
+            playSong(currentSongIndex);
+        }
+
+        function prevSong() {
+            if (currentSongIndex > 0) {
+                currentSongIndex--;
+            } else {
+                currentSongIndex = songs.length - 1;
+            }
+            playSong(currentSongIndex);
+        }
+
+        // Salva lo stato prima che la pagina venga cambiata
+        window.addEventListener('beforeunload', function () {
+            savePlayerState(); // Salva lo stato prima che la pagina venga cambiata
+        });
 
     </script>
 </body>

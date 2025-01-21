@@ -4,13 +4,42 @@ let currentSongIndex = -1;
 let songs = [];
 let isPlaying = false;
 
-function getQueryParams() {
-    const url = window.location.href; // Ottieni l'URL completo della pagina
-    const urlParams = new URLSearchParams(window.location.search); // Ottieni i parametri di query
-    const tipo = urlParams.get('tipo'); // Ottieni il valore del parametro 'tipo'
-    return tipo; // Restituisci il valore del parametro 'tipo'
+
+
+// Funzione per caricare la lista delle canzoni
+function loadSongList() {
+    fetch('../audio/_listAudio.json')
+        .then(response => response.json())
+        .then(data => {
+            // Ottieni il parametro 'tipo' dall'URL
+            const tipo = getQueryParams();
+            console.log(tipo);
+            // Filtra le canzoni in base al tipo di playlist
+            if (tipo !== "all-tracks") {
+                filteredSongs = tipo ? data.filter(song => song.playlist.includes(tipo)) : data;
+                songs = filteredSongs;
+                // Aggiungi le canzoni filtrate alla lista
+                filteredSongs.forEach((song, index) => {
+                    addSongToList(song, index);
+                });
+            } else {
+                songs = data;
+                data.forEach((song, index) => {
+                    addSongToList(song, index);
+                });
+            }
+
+
+            // Ripristina lo stato del player (se c'è uno stato salvato)
+            if (isPlaying) {
+                const playerState = JSON.parse(sessionStorage.getItem('playerState'));
+                restorePlayerState(playerState);
+            }
+        })
+        .catch(error => {
+            console.error('Errore nel caricare il file JSON:', error);
+        });
 }
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
 
 
 function updateProgressBar() {
@@ -120,6 +149,7 @@ function restorePlayerState(playerState) {
 
 // Play/Pause toggle
 document.addEventListener('DOMContentLoaded', function () {
+    loadSongList();
     document.getElementById('playPauseBtn').onclick = function (event) {
         event.stopPropagation(); // Impedisce la propagazione al player
         if (currentAudio.paused) {
