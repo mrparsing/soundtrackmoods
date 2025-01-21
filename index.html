@@ -20,7 +20,7 @@
         </div>
         <h2>Your Playlists</h2>
         <div class="playlist-section">
-            
+
         </div>
 
         <h2>Artists</h2>
@@ -30,89 +30,115 @@
     </div>
 </body>
 
-<script>
-    function loadPlaylistsFromAuthors() {
-        // Path al file JSON
-        const audioFolderPath = 'audio/';
-        const jsonFilePath = `${audioFolderPath}_listAudio.json`;
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js"; // Corretto import
 
+    // Configurazione Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyABElssbFMChF1HvJkQY36Kes1kbvIM3UM",
+        authDomain: "soundtrackmoods.firebaseapp.com",
+        projectId: "soundtrackmoods",
+        storageBucket: "soundtrackmoods.appspot.com",
+        messagingSenderId: "75386945766",
+        appId: "1:75386945766:web:4405cd8dcd7f0de681fb27",
+        databaseURL: "https://soundtrackmoods-default-rtdb.firebaseio.com" // Se usi Realtime DB
+    };
+
+    // Inizializza Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Funzione per recuperare e stampare i brani
+    async function getTracks() {
+        const tracksDocRef = doc(db, "all-tracks", "tracksDocument");
+
+        try {
+            const docSnap = await getDoc(tracksDocRef);
+            if (docSnap.exists()) {
+                const tracksData = docSnap.data();
+
+                if (tracksData && tracksData.tracks) {
+                    // Stampa tutti i brani nel log
+                    tracksData.tracks.forEach((track) => {
+                        console.log(`Titolo: ${track.title}, Autore: ${track.author}, Copertura: ${track.cover}`);
+                        loadPlaylistsFromAuthors(track.author);
+                    });
+                } else {
+                    console.log("Nessun brano trovato.");
+                }
+            } else {
+                console.log("Documento non trovato.");
+            }
+        } catch (error) {
+            console.error("Errore nel recuperare i brani:", error);
+        }
+    }
+    document.addEventListener('DOMContentLoaded', getTracks);
+
+
+    function loadPlaylistsFromAuthors(author) {
         // Sezione dove aggiungere le playlist
         const playlistSection = document.querySelector('.playlist-section-author');
 
-        // Legge il file JSON
-        fetch(jsonFilePath)
-            .then(response => response.json())
-            .then(data => {
-                // Estrae tutti gli autori e rimuove i duplicati
-                const authors = [...new Set(data.map(song => song.author))];
+        // Per ogni autore, crea una playlist
+        const playlistDiv = document.createElement('div');
+        playlistDiv.className = 'playlist';
 
-                // Per ogni autore, crea una playlist
-                authors.forEach(author => {
-                    const playlistDiv = document.createElement('div');
-                    playlistDiv.className = 'playlist';
-
-                    playlistDiv.innerHTML = `
+        playlistDiv.innerHTML = `
                     <img src="https://via.placeholder.com/200" alt="Playlist Cover">
                     <h3>${author}</h3>
                 `;
 
-                    playlistSection.appendChild(playlistDiv);
-                });
-            })
-            .catch(error => {
-                console.error('Errore nel caricare il file JSON:', error);
-            });
+        playlistSection.appendChild(playlistDiv);
+
+
     }
 
-    function loadPlaylistsFromTracks() {
-        // Path al file JSON
-        const audioFolderPath = 'audio/';
-        const jsonFilePath = `${audioFolderPath}_listAudio.json`;
+    async function loadPlaylists() {
+        try {
+            const querySnapshot = await getDocs(collection(db, "playlists"));
+            if (querySnapshot.empty) {
+                console.log("Nessuna playlist trovata.");
+            } else {
+                querySnapshot.forEach((doc) => {
+                    const playlist = doc.data();
+                    loadPlaylistsFromTracks(playlist.name)
+                    //console.log(`Tracce: ${playlist.tracks ? playlist.tracks.length : 0}`);
+                });
+            }
+        } catch (error) {
+            console.error("Errore nel caricare le playlist: ", error);
+        }
+    }
 
+    document.addEventListener('DOMContentLoaded', loadPlaylists);
+
+
+    function loadPlaylistsFromTracks(playlist) {
         // Sezione dove aggiungere le playlist
         const playlistSection = document.querySelector('.playlist-section');
 
-        // Legge il file JSON
-        fetch(jsonFilePath)
-            .then(response => response.json())
-            .then(data => {
-                // Estrae tutte le playlist da ogni canzone, separa quelle multiple e rimuove i duplicati
-                const playlists = [...new Set(
-                    data.flatMap(song => song.playlist.split(' - ').map(playlist => playlist.trim()))
-                )];
+        // Per ogni playlist unica, crea un elemento HTML
+        const playlistDiv = document.createElement('a');
+        playlistDiv.href = `pages/all-tracks.html?tipo=${encodeURIComponent(playlist)}`;
+        playlistDiv.className = 'playlist-link';
 
-                // Per ogni playlist unica, crea un elemento HTML
-                playlists.forEach(playlist => {
-                    const playlistDiv = document.createElement('a');
-                    playlistDiv.href = `pages/all-tracks.html?tipo=${encodeURIComponent(playlist)}`;
-                    playlistDiv.className = 'playlist-link';
+        let img_src = `assets/${playlist}.jpg`;
+        if (playlist === "") {
+            img_src = `assets/default.jpg`;
+        }
 
-                    let img_src = `assets/${playlist}.jpg`;
-                    if (playlist === "") {
-                        img_src = `assets/default.jpg`;
-                    }
-
-                    playlistDiv.innerHTML = `
+        playlistDiv.innerHTML = `
                     <div class="playlist">
                         <img src="${img_src}" alt="Playlist Cover">
                         <h3>${playlist.charAt(0).toUpperCase() + playlist.slice(1)}</h3>
                     </div>
                 `;
 
-                    playlistSection.appendChild(playlistDiv);
-                });
-            })
-            .catch(error => {
-                console.error('Errore nel caricare il file JSON:', error);
-            });
+        playlistSection.appendChild(playlistDiv);
+
     }
-
-    // Chiama la funzione al caricamento della pagina
-    document.addEventListener('DOMContentLoaded', loadPlaylistsFromTracks);
-
-
-    // Chiama la funzione al caricamento della pagina
-    document.addEventListener('DOMContentLoaded', loadPlaylistsFromAuthors);
 </script>
 
 </html>

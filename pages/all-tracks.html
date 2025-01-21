@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Songs</title>
     <link rel="stylesheet" href="../css/all-track_style.css">
-    <script src="../js/script.js"></script>
+    <script src="../js/script.js" type="module"></script>
 </head>
 
 <body>
@@ -22,6 +22,20 @@
 
     <!-- Main Content -->
     <div class="main-content">
+
+        <!-- Button to create new playlist -->
+        <a id="createPlaylistBtn" class="create-playlist-btn">Create New Playlist</a>
+
+        <!-- Modal for entering playlist name -->
+        <div id="playlistModal" class="playlist-modal">
+            <div class="playlist-modal-content">
+                <h3>Enter Playlist Name</h3>
+                <input type="text" id="playlistName" placeholder="Playlist Name">
+                <button id="savePlaylistBtn">Save Playlist</button>
+                <button id="cancelPlaylistBtn">Cancel</button>
+            </div>
+        </div>
+
         <h2>All Songs</h2>
         <ul class="song-list" id="songList">
             <!-- Songs will be dynamically added here -->
@@ -45,6 +59,238 @@
         </div>
     </div>
 
+    <script type="module">
+
+        function getQueryParams() {
+            const url = window.location.href; // Ottieni l'URL completo della pagina
+            const urlParams = new URLSearchParams(window.location.search); // Ottieni i parametri di query
+            const tipo = urlParams.get('tipo'); // Ottieni il valore del parametro 'tipo'
+            return tipo; // Restituisci il valore del parametro 'tipo'
+        }
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js"; // Importa Firestore
+
+        // Configurazione Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyABElssbFMChF1HvJkQY36Kes1kbvIM3UM",
+            authDomain: "soundtrackmoods.firebaseapp.com",
+            projectId: "soundtrackmoods",
+            storageBucket: "soundtrackmoods.appspot.com",
+            messagingSenderId: "75386945766",
+            appId: "1:75386945766:web:4405cd8dcd7f0de681fb27",
+            databaseURL: "https://soundtrackmoods-default-rtdb.firebaseio.com" // Se usi Realtime DB
+        };
+
+        // Inizializza Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Modal per la creazione della playlist
+        const createPlaylistBtn = document.getElementById('createPlaylistBtn');
+        const playlistModal = document.getElementById('playlistModal');
+        const savePlaylistBtn = document.getElementById('savePlaylistBtn');
+        const cancelPlaylistBtn = document.getElementById('cancelPlaylistBtn');
+        const playlistNameInput = document.getElementById('playlistName');
+
+        // Funzione per aprire il modal
+        createPlaylistBtn.addEventListener('click', () => {
+            playlistModal.style.display = 'block'; // Mostra il modal
+        });
+
+        // Funzione per chiudere il modal
+        cancelPlaylistBtn.addEventListener('click', () => {
+            playlistModal.style.display = 'none'; // Nascondi il modal
+        });
+
+        // Funzione per salvare la playlist
+        savePlaylistBtn.addEventListener('click', async () => {
+            const playlistName = playlistNameInput.value.trim();
+
+            if (playlistName) {
+                try {
+                    // Aggiungi la playlist alla collezione "playlists" in Firestore
+                    const docRef = await addDoc(collection(db, "playlists"), {
+                        name: playlistName,
+                        tracks: [] // Playlist inizialmente vuota
+                    });
+
+                    console.log("Playlist aggiunta con ID: ", docRef.id);
+                    alert('Playlist creata con successo!');
+
+                    // Chiudi il modal dopo aver aggiunto la playlist
+                    playlistModal.style.display = 'none';
+                    playlistNameInput.value = ''; // Resetta il campo input
+                } catch (e) {
+                    console.error("Errore nel creare la playlist: ", e);
+                    alert('Errore nella creazione della playlist.');
+                }
+            } else {
+                alert('Per favore, inserisci un nome valido per la playlist.');
+            }
+        });
+
+
+
+        import { query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
+
+        // Funzione per recuperare i brani per una playlist specifica
+        async function getSongsByPlaylist(playlistName) {
+            console.log("Recupero i brani per la playlist:", playlistName);
+            const db = getFirestore();
+
+            try {
+                // Riferimento alla collezione delle playlist
+                const playlistsRef = collection(db, "playlists");
+
+                // Ottieni tutti i documenti della collezione
+                const querySnapshot = await getDocs(playlistsRef);
+
+                // Cerca il documento che ha il campo `name` uguale a `playlistName`
+                let foundPlaylist = null;
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.name === playlistName) {
+                        foundPlaylist = data;
+                    }
+                });
+
+                if (foundPlaylist) {
+                    // Se troviamo la playlist, stampiamo i brani nel log
+                    if (Array.isArray(foundPlaylist.tracks)) {
+                        console.log(foundPlaylist.tracks);
+
+                        foundPlaylist.tracks.forEach((track, index) => {
+                            addSongToList(track, index, false);
+                        });
+                    } else {
+                        console.log(`Nessun brano trovato nella playlist: ${playlistName}`);
+                    }
+                } else {
+                    console.log(`La playlist "${playlistName}" non è stata trovata.`);
+                }
+            } catch (error) {
+                console.error("Errore nel recuperare le canzoni:", error);
+            }
+        }
+
+        async function getAllTracks() {
+            console.log("Recupero tutti i brani dalla collezione 'all-tracks'");
+            const db = getFirestore();
+
+            try {
+                // Riferimento al documento `tracksDocument` nella collezione `all-tracks`
+                const tracksDocRef = doc(db, "all-tracks", "tracksDocument");
+                const docSnap = await getDoc(tracksDocRef);
+
+                if (docSnap.exists()) {
+                    // Ottieni l'array di brani dal documento
+                    const data = docSnap.data();
+                    const tracks = data.tracks;
+
+                    if (Array.isArray(tracks) && tracks.length > 0) {
+                        // Stampa ogni brano nel log
+                        tracks.forEach((track, index) => {
+                            addSongToList(track, index, true);
+                            console.log(`Brano ${index + 1}:`);
+                            console.log(`Titolo: ${track.title}`);
+                            console.log(`Autore: ${track.author}`);
+                            console.log(`Copertura: ${track.cover}`);
+                            console.log("---------------------------");
+                        });
+                    } else {
+                        console.log("Nessun brano trovato nella collezione.");
+                    }
+                } else {
+                    console.log("Documento 'tracksDocument' non trovato nella collezione 'all-tracks'.");
+                }
+            } catch (error) {
+                console.error("Errore nel recuperare i brani:", error);
+            }
+        }
+
+        let tipo = getQueryParams();
+        console.log(tipo);
+        if (tipo === "all-tracks") {
+            document.addEventListener('DOMContentLoaded', getAllTracks);
+        } else {
+            document.addEventListener('DOMContentLoaded', getSongsByPlaylist(tipo));
+        }
+
+        async function addSongToList(song, index, all_track) {
+            console.log("all-tracks", all_track);
+            const songListElement = document.getElementById('songList');
+            const songItem = document.createElement('li');
+            songItem.className = 'song-item';
+
+            let info_track;
+            if (!all_track) {
+                info_track = await getInfoTrack(song);
+
+
+                songItem.innerHTML = `
+        <div class="song-info">
+            <div class="song-title">${info_track.title}</div>
+            <div class="song-author">${info_track.author}</div>
+            <div class="song-duration">${song.duration}</div>
+        </div>
+        <button class="play-button" onclick="playSong(${index})">Play</button>
+    `;
+            } else {
+                songItem.innerHTML = `
+        <div class="song-info">
+            <div class="song-title">${song.title}</div>
+            <div class="song-author">${song.author}</div>
+            <div class="song-duration">${song.duration}</div>
+        </div>
+        <button class="play-button" onclick="playSong(${index})">Play</button>
+    `;
+            }
+            songListElement.appendChild(songItem);
+        }
+
+        async function getInfoTrack(trackTitle) {
+            console.log(`Cerco informazioni per il brano: ${trackTitle}`);
+            const db = getFirestore();
+
+            try {
+                // Riferimento al documento `tracksDocument` nella collezione `all-tracks`
+                const tracksDocRef = doc(db, "all-tracks", "tracksDocument");
+                const docSnap = await getDoc(tracksDocRef);
+
+                if (docSnap.exists()) {
+                    // Ottieni l'array di brani
+                    const data = docSnap.data();
+                    const tracks = data.tracks;
+
+                    // Cerca il brano in base al titolo
+                    const track = tracks.find((t) => t.title === trackTitle);
+
+                    if (track) {
+                        // Crea un array con le informazioni del brano
+                        const trackInfo = {
+                            title: track.title,
+                            author: track.author,
+                            cover: track.cover
+                        };
+
+                        console.log("Informazioni trovate:", trackInfo);
+                        return trackInfo; // Restituisce le informazioni
+                    } else {
+                        console.log(`Brano "${trackTitle}" non trovato.`);
+                        return null; // Restituisce null se il brano non è stato trovato
+                    }
+                } else {
+                    console.log("Documento 'tracksDocument' non trovato nella collezione 'all-tracks'.");
+                    return null; // Restituisce null se il documento non esiste
+                }
+            } catch (error) {
+                console.error("Errore nel recuperare il brano:", error);
+                return null; // Restituisce null in caso di errore
+            }
+        }
+
+    </script>
 </body>
 
 </html>

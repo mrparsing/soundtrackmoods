@@ -10,58 +10,8 @@ function getQueryParams() {
     const tipo = urlParams.get('tipo'); // Ottieni il valore del parametro 'tipo'
     return tipo; // Restituisci il valore del parametro 'tipo'
 }
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
 
-// Funzione per caricare la lista delle canzoni
-function loadSongList() {
-    fetch('../audio/_listAudio.json')
-        .then(response => response.json())
-        .then(data => {
-            // Ottieni il parametro 'tipo' dall'URL
-            const tipo = getQueryParams();
-            console.log(tipo);
-            // Filtra le canzoni in base al tipo di playlist
-            if (tipo !== "all-tracks") {
-                filteredSongs = tipo ? data.filter(song => song.playlist.includes(tipo)) : data;
-                songs = filteredSongs;
-                // Aggiungi le canzoni filtrate alla lista
-                filteredSongs.forEach((song, index) => {
-                    addSongToList(song, index);
-                });
-            } else {
-                songs = data;
-                data.forEach((song, index) => {
-                    addSongToList(song, index);
-                });
-            }
-
-
-            // Ripristina lo stato del player (se c'è uno stato salvato)
-            if (isPlaying) {
-                const playerState = JSON.parse(sessionStorage.getItem('playerState'));
-                restorePlayerState(playerState);
-            }
-        })
-        .catch(error => {
-            console.error('Errore nel caricare il file JSON:', error);
-        });
-}
-
-// Funzione per aggiungere la canzone alla lista
-function addSongToList(song, index) {
-    const songListElement = document.getElementById('songList');
-    const songItem = document.createElement('li');
-    songItem.className = 'song-item';
-
-    songItem.innerHTML = `
-        <div class="song-info">
-            <div class="song-title">${song.title}</div>
-            <div class="song-author">${song.author}</div>
-            <div class="song-duration">${song.duration}</div>
-        </div>
-        <button class="play-button" onclick="playSong(${index})">Play</button>
-    `;
-    songListElement.appendChild(songItem);
-}
 
 function updateProgressBar() {
     const progressBar = document.getElementById('progressBar');
@@ -170,7 +120,6 @@ function restorePlayerState(playerState) {
 
 // Play/Pause toggle
 document.addEventListener('DOMContentLoaded', function () {
-    loadSongList();
     document.getElementById('playPauseBtn').onclick = function (event) {
         event.stopPropagation(); // Impedisce la propagazione al player
         if (currentAudio.paused) {
