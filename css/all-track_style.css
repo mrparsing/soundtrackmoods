@@ -64,9 +64,12 @@ h2 {
 }
 
 .song-info {
-    flex: 1; /* Consente di occupare tutto lo spazio disponibile */
-    max-width: calc(100% - 100px); /* Regola questa larghezza in base agli altri elementi (ad esempio il pulsante Play) */
-    overflow: hidden; /* Impedisce al contenuto interno di superare i bordi */
+    flex: 1;
+    /* Consente di occupare tutto lo spazio disponibile */
+    max-width: calc(100% - 100px);
+    /* Regola questa larghezza in base agli altri elementi (ad esempio il pulsante Play) */
+    overflow: hidden;
+    /* Impedisce al contenuto interno di superare i bordi */
 }
 
 .song-title {
@@ -74,17 +77,20 @@ h2 {
     font-weight: bold;
     color: white;
     margin-bottom: 5px;
-    white-space: nowrap; /* Evita che il testo vada su più righe */
-    overflow: hidden; /* Nasconde il contenuto in eccesso */
-    text-overflow: ellipsis; /* Aggiunge "..." per indicare che il testo è troncato */
+    white-space: nowrap;
+    /* Evita che il testo vada su più righe */
+    overflow: hidden;
+    /* Nasconde il contenuto in eccesso */
+    width: 300px;
+    /* Aggiunge "..." per indicare che il testo è troncato */
 }
 
 .song-author {
     font-size: 14px;
     color: #ccc;
-    white-space: nowrap; /* Evita che il testo vada su più righe */
-    overflow: hidden; /* Nasconde il contenuto in eccesso */
-    text-overflow: ellipsis; /* Aggiunge "..." per indicare che il testo è troncato */
+    white-space: nowrap;
+    /* Evita che il testo vada su più righe */
+    overflow: hidden;
 }
 
 .song-author,
@@ -92,7 +98,7 @@ h2 {
     font-size: 14px;
     color: #ccc;
     flex: 1;
-    width: 350px;
+    width: 300px;
 }
 
 .play-button {
@@ -149,7 +155,7 @@ h2 {
     display: none;
     width: 100px;
     height: 100px;
-    margin-top: 170px;
+    margin-top: 100px;
     background-color: #333;
     border-radius: 10px;
     margin-bottom: 15px;
@@ -433,12 +439,51 @@ h2 {
     border-radius: 5px;
     font-size: 14px;
     cursor: pointer;
-    margin-top: 30px; /* Distanza tra la lista delle canzoni e il bottone */
-    display: block; /* Rende il bottone un blocco che occupa tutta la larghezza disponibile */
-    text-align: center; /* Centra il testo dentro il bottone */
+    margin-top: 30px;
+    /* Distanza tra la lista delle canzoni e il bottone */
+    display: block;
+    /* Rende il bottone un blocco che occupa tutta la larghezza disponibile */
+    text-align: center;
+    /* Centra il testo dentro il bottone */
     margin-bottom: 250px;
 }
 
 .delete-playlist-btn:hover {
     background-color: #ff1a1a;
+}
+
+.song-info {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.song-title,
+.song-author {
+    display: inline-block;
+    white-space: nowrap;
+    /* Impedisce il testo da andare a capo */
+}
+
+.scroll-text {
+    display: inline-block;
+    /* Permette la movimentazione orizzontale */
+    white-space: nowrap;
+    /* Impedisce che il testo vada su più righe */
+    overflow: hidden;
+    /* Nasconde la parte del testo che esce dal contenitore */
+    animation: scrollText 10s linear infinite;
+    /* L'animazione si ripete all'infinito */
+}
+
+@keyframes scrollText {
+    0% {
+        transform: translateX(100%);
+        /* Inizia fuori dallo schermo, a destra */
+    }
+
+    100% {
+        transform: translateX(-100%);
+        /* Si sposta completamente a sinistra */
+    }
 }

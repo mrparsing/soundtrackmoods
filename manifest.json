@@ -1,0 +1,19 @@
+{
+  "name": "soundtrackmoods",
+  "short_name": "soundtrackmoods",
+  "description": "soundtrackmoods",
+  "start_url": "index.html",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "assets/workout.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "assets/workout.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

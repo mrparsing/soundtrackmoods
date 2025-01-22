@@ -68,11 +68,13 @@
         let currentSongIndex = -1;
         let songs = [];
         let isPlaying = false;
+
         function getQueryParams() {
-            const url = window.location.href; // Ottieni l'URL completo della pagina
-            const urlParams = new URLSearchParams(window.location.search); // Ottieni i parametri di query
-            const tipo = urlParams.get('tipo'); // Ottieni il valore del parametro 'tipo'
-            return tipo; // Restituisci il valore del parametro 'tipo'
+            const url = window.location.href;
+            const urlParams = new URLSearchParams(window.location.search);
+            const tipo = urlParams.get('tipo');
+            const author = urlParams.get('author');
+            return { tipo, author };
         }
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
@@ -109,6 +111,7 @@
         cancelPlaylistBtn.addEventListener('click', () => {
             playlistModal.style.display = 'none'; // Nascondi il modal
         });
+
 
         // Funzione per salvare la playlist
         savePlaylistBtn.addEventListener('click', async () => {
@@ -212,12 +215,14 @@
             }
         }
 
-        let tipo = getQueryParams();
-        console.log(tipo);
-        if (tipo === "all-tracks") {
+        let params = getQueryParams();
+
+        if (params.tipo === "all-tracks" && !params.author) {
             document.addEventListener('DOMContentLoaded', getAllTracks);
+        } else if (!params.author) {
+            document.addEventListener('DOMContentLoaded', getSongsByPlaylist(params.tipo));
         } else {
-            document.addEventListener('DOMContentLoaded', getSongsByPlaylist(tipo));
+            document.addEventListener('DOMContentLoaded', loadTracksByAuthor(params.author));
         }
 
         function getMp3Duration(filePath) {
@@ -513,12 +518,13 @@
 
             currentSongIndex = index;
 
+
             const song = songs[currentSongIndex];
 
             if (!currentAudio) {
-                currentAudio = new Audio(audioFolderPath + "../audio/Snowman.mp3");
+                currentAudio = new Audio(audioFolderPath + song.title + ".mp3");
             } else {
-                currentAudio.src = audioFolderPath + "../audio/Snowman.mp3";
+                currentAudio.src = audioFolderPath + song.title + ".mp3";
                 currentAudio.currentTime = 0;
             }
 
@@ -799,10 +805,10 @@
         async function deletePlaylist() {
             const db = getFirestore();
             const playlistsRef = collection(db, "playlists");
-            let playlist = getQueryParams();
+            let params = getQueryParams();
             try {
                 // Chiedi all'utente quale playlist eliminare
-                const playlistName = playlist;
+                const playlistName = params.tipo;
 
                 // Trova la playlist nel database
                 const querySnapshot = await getDocs(playlistsRef);
@@ -831,6 +837,81 @@
         }
 
         document.getElementById("deletePlaylistBtn").addEventListener("click", deletePlaylist);
+
+        function checkTextOverflow() {
+            const songItems = document.querySelectorAll('.song-info');
+            console.log(songItems);
+            songItems.forEach(item => {
+                const title = item.querySelector('.song-title');
+                const author = item.querySelector('.song-author');
+
+                // Verifica se il titolo è troppo largo
+                console.log("Scrollwidth", title.scrollWidth);
+                console.log("offsetWidth", title.offsetWidth);
+                if (title.scrollWidth > title.offsetWidth) {
+
+                    title.classList.add('scroll-text'); // Aggiunge l'animazione
+                } else {
+                    title.classList.remove('scroll-text'); // Rimuove l'animazione se non è necessario
+                }
+
+                // Verifica se l'autore è troppo largo
+                if (author.scrollWidth > author.offsetWidth) {
+                    console.log("CIAO");
+
+                    author.classList.add('scroll-text'); // Aggiunge l'animazione
+                } else {
+                    author.classList.remove('scroll-text'); // Rimuove l'animazione se non è necessario
+                }
+            });
+        }
+
+        window.onload = function () {
+            setTimeout(checkTextOverflow, 1000); // Attendi 100 ms per essere sicuri che gli elementi siano nel DOM
+        };
+
+        // Riprova ogni volta che la finestra viene ridimensionata
+        window.onresize = checkTextOverflow;
+
+
+
+        async function loadTracksByAuthor(author) {
+            console.log("cds", author);
+            const db = getFirestore(); // Recupera l'istanza di Firestore
+            const tracksDocRef = doc(db, "all-tracks", "tracksDocument"); // Riferimento al documento tracksDocument
+
+            try {
+                // Recupera il documento contenente i brani
+                const docSnap = await getDoc(tracksDocRef);
+
+                if (docSnap.exists()) {
+                    // Ottieni l'array di brani dal documento
+                    const data = docSnap.data();
+                    const tracks = data.tracks;
+                    songs = tracks;
+                    console.log(songs[0].author);
+                    const filteredTracks = songs.filter(track => track.author === author);
+
+                    console.log(filteredTracks);
+
+                    if (Array.isArray(tracks) && tracks.length > 0) {
+                        // Stampa ogni brano nel log
+                        filteredTracks.forEach((track, index) => {
+                            addSongToList(track, index, true);
+                        });
+                    } else {
+                        console.log("Nessun brano trovato nella collezione.");
+                    }
+                } else {
+                    console.log("Documento 'tracksDocument' non trovato nella collezione 'all-tracks'.");
+                }
+
+
+
+            } catch (error) {
+                console.error("Errore nel caricare i brani dell'autore:", error);
+            }
+        }
     </script>
 </body>
 

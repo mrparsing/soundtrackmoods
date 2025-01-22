@@ -134,18 +134,27 @@
         // Sezione dove aggiungere le playlist
         const playlistSection = document.querySelector('.playlist-section-author');
 
-        // Per ogni autore, crea una playlist
-        const playlistDiv = document.createElement('div');
-        playlistDiv.className = 'playlist';
+        // Crea il contenitore per la playlist (come un link)
+        const playlistLink = document.createElement('a');
+        playlistLink.className = 'playlist';
+        playlistLink.href = `pages/all-tracks.html?author=${encodeURIComponent(author)}`;
 
-        playlistDiv.innerHTML = `
-                    <img src="https://via.placeholder.com/200" alt="Playlist Cover">
-                    <h3>${author}</h3>
-                `;
+        // Imposta l'immagine della playlist (default se l'autore è vuoto)
+        let img_src = `assets/${author}.jpg`;
+        if (author === "") {
+            img_src = `assets/default.jpg`;
+        }
 
-        playlistSection.appendChild(playlistDiv);
+        // HTML per la playlist
+        playlistLink.innerHTML = `
+        <div class="playlist">
+            <img src="${img_src}" alt="Playlist Cover">
+            <h3>${author.charAt(0).toUpperCase() + author.slice(1)}</h3>
+        </div>
+    `;
 
-
+        // Aggiungi la playlist alla sezione
+        playlistSection.appendChild(playlistLink);
     }
 
     async function loadPlaylists() {
