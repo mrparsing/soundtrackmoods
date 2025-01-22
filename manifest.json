@@ -1,20 +1,19 @@
 {
-  "name": "soundtrackmoods",
+  "name": "soundtrackmoods - Home",
   "short_name": "soundtrackmoods",
   "description": "Ascolta la tua musica",
-  "start_url": "/index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "icons": [
     {
-      "src": "assets/workout.png",
-      "type": "image/png",
+      "src": "assets/workout.jpg",
+      "type": "image/jpg",
       "sizes": "192x192"
     },
     {
-      "src": "assets/workout.png",
-      "type": "image/png",
+      "src": "assets/workout.jpg",
+      "type": "image/jpg",
       "sizes": "512x512"
     }
   ]
 }
-

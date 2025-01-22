@@ -41,19 +41,22 @@
 
 <script type="module">
 
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then((registration) => {
-                    console.log('[Service Worker] Registered:', registration);
-                })
-                .catch((error) => {
-                    console.error('[Service Worker] Registration failed:', error);
-                });
-        });
-    }
+    document.addEventListener('DOMContentLoaded', function () {
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((registration) => {
+                        console.log("nasdkflgjandslfkands");
+                        console.log('[Service Worker] Registered:', registration);
+                    })
+                    .catch((error) => {
+                        console.error('[Service Worker] Registration failed:', error);
+                    });
+            });
+        }
 
-
+    });
+    
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
     import { getFirestore, doc, getDoc, getDocs, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js"; // Corretto import
 
