@@ -121,7 +121,7 @@ h2 {
     position: fixed;
     bottom: 0;
     width: 100%;
-    height: 25vh;
+    height: 30vh;
     /* Minimized height */
     background-color: #222;
     color: white;
@@ -151,7 +151,7 @@ h2 {
 }
 
 .player.show .song-details {
-    margin-top: 41px;
+    margin-top: 30px;
     max-width: 90%;
 }
 
@@ -223,11 +223,11 @@ h2 {
 /* Control buttons */
 .controls {
     display: flex;
-    gap: 30px;
+    gap: 20px;
     align-items: center;
     justify-content: center;
     width: 100%;
-    margin: 33px 0;
+    margin: 52px 0;
     z-index: 1000;
 }
 
