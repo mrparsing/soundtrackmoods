@@ -60,7 +60,7 @@ h2 {
 }
 
 .song-item:hover {
-    background-color: #1DB954;
+    background-color: #222;
 }
 
 .song-info {
@@ -73,7 +73,7 @@ h2 {
 }
 
 .song-title {
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
     color: white;
     margin-bottom: 5px;
@@ -95,7 +95,7 @@ h2 {
 
 .song-author,
 .song-duration {
-    font-size: 14px;
+    font-size: 15px;
     color: #ccc;
     flex: 1;
     width: 300px;
@@ -105,6 +105,7 @@ h2 {
     background-color: #1DB954;
     color: white;
     border: none;
+    font-size: 18px;
     padding: 10px 20px;
     border-radius: 50px;
     cursor: pointer;
@@ -133,6 +134,14 @@ h2 {
     z-index: 1000;
 }
 
+.player .song-title {
+    font-size: 25px;
+}
+
+.player .song-author {
+    font-size: 25px;
+}
+
 .player .cover {
     display: block;
 }
@@ -142,7 +151,7 @@ h2 {
 }
 
 .player.show .song-details {
-    margin-top: 40px;
+    margin-top: 41px;
     max-width: 90%;
 }
 
@@ -164,9 +173,9 @@ h2 {
 }
 
 .player.expanded .cover {
-    width: 80%;
+    width: 85%;
     /* Larger cover in expanded view */
-    height: 35%;
+    height: 40%;
 }
 
 /* Progress bar */
@@ -214,37 +223,39 @@ h2 {
 /* Control buttons */
 .controls {
     display: flex;
-    gap: 100px;
+    gap: 30px;
     align-items: center;
     justify-content: center;
     width: 100%;
-    margin: 30px 0;
+    margin: 33px 0;
     z-index: 1000;
 }
 
 .control-btn {
-    background-color: #444;
+    background-color: rgba(255, 255, 255, 0.1);
     color: white;
     border: none;
     border-radius: 50%;
     width: 50px;
     height: 50px;
-    font-size: 20px;
+    font-size: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     cursor: pointer;
-    transition: transform 0.2s ease, background-color 0.2s ease;
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .control-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
-    background-color: #555;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 .control-btn:active {
-    transform: scale(0.9);
+    transform: scale(0.95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Expand button */
@@ -270,7 +281,7 @@ h2 {
 }
 
 .song-author {
-    font-size: 14px;
+    font-size: 18px;
     color: #ccc;
 }
 
@@ -486,4 +497,15 @@ h2 {
         transform: translateX(-100%);
         /* Si sposta completamente a sinistra */
     }
+}
+
+#rewindBtn, #forwardBtn {
+    font-size: 16px;
+    width: 55px;
+    height: 55px;
+}
+
+#playPauseBtn {
+    width: 70px;
+    height: 70px;
 }

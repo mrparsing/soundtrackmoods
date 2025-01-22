@@ -37,6 +37,11 @@
                     <input type="text" id="author" name="author" required placeholder="Inserisci l'autore del brano">
                 </div>
 
+                <div class="form-group">
+                    <label for="cover">Cover</label>
+                    <input type="text" id="cover" name="author">
+                </div>
+
                 <button type="submit">Carica Brano</button>
             </form>
         </div>
@@ -65,13 +70,14 @@
 
             const title = document.getElementById('title').value;
             const author = document.getElementById('author').value;
+            const cover = document.getElementById('cover').value;
 
             // Crea l'oggetto del brano
             const newTrack = {
                 title: title,
                 author: author,
-                cover: "../assets/" + title.toLowerCase() + ".jpg", // Usa un percorso basato sul titolo
-                playlist: [] // Playlist vuota all'inizio
+                cover: "../assets/" + cover+ ".jpg", // Usa un percorso basato sul titolo
+                //playlist: [] // Playlist vuota all'inizio
             };
 
             try {

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Songs</title>
     <link rel="stylesheet" href="../css/all-track_style.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body>
@@ -56,9 +56,11 @@
             <input type="range" id="progressBar" class="progress-bar" value="0" min="0" max="100" step="0.1" />
         </div>
         <div class="controls">
-            <button id="prevBtn" class="control-btn">⏮️</button>
-            <button id="playPauseBtn" class="control-btn">⏯️</button>
-            <button id="nextBtn" class="control-btn">⏭️</button>
+            <button id="prevBtn" class="control-btn"><i class="fas fa-backward"></i></button>
+            <button id="rewindBtn" class="control-btn"><i class="fas fa-undo"></i>10s</button>
+            <button id="playPauseBtn" class="control-btn"><i class="fas fa-pause"></i></button>
+            <button id="forwardBtn" class="control-btn">10s<i class="fas fa-redo"></i></button>
+            <button id="nextBtn" class="control-btn"><i class="fas fa-forward"></i></button>
         </div>
     </div>
 
@@ -101,6 +103,31 @@
         const savePlaylistBtn = document.getElementById('savePlaylistBtn');
         const cancelPlaylistBtn = document.getElementById('cancelPlaylistBtn');
         const playlistNameInput = document.getElementById('playlistName');
+
+        // Riferimento all'elemento audio
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        // Riferimento ai pulsanti
+        const rewindBtn = document.getElementById('rewindBtn');
+        const forwardBtn = document.getElementById('forwardBtn');
+
+        document.getElementById('rewindBtn').onclick = function (event) {
+            event.stopPropagation(); // Impedisce la propagazione al player
+            if (currentAudio.currentTime > 10) {
+                currentAudio.currentTime -= 10; // Torna indietro di 10 secondi
+            } else {
+                currentAudio.currentTime = 0; // Torna all'inizio
+            }
+        };
+
+        document.getElementById('forwardBtn').onclick = function (event) {
+            event.stopPropagation(); // Impedisce la propagazione al player
+            if (currentAudio.currentTime + 10 < currentAudio.duration) {
+                currentAudio.currentTime += 10; // Avanza di 10 secondi
+            } else {
+                currentAudio.currentTime = currentAudio.duration; // Salta alla fine
+            }
+        };
 
         // Funzione per aprire il modal
         createPlaylistBtn.addEventListener('click', () => {
@@ -486,7 +513,8 @@
             }
         }
 
-        function updateProgressBar() {
+        function updateProgressBar(event) {
+            event.stopPropagation();
             const progressBar = document.getElementById('progressBar');
             if (currentAudio) {
                 progressBar.value = (currentAudio.currentTime / currentAudio.duration) * 100;
@@ -495,6 +523,7 @@
 
         // Cambia la posizione della traccia quando l'utente sposta il cursore
         function seekAudio(event) {
+            event.stopPropagation();
             if (currentAudio) {
                 const progressBar = event.target;
                 const newTime = (progressBar.value / 100) * currentAudio.duration;
@@ -502,7 +531,8 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function (event) {
+            event.stopPropagation();
             document.getElementById('progressBar').addEventListener('input', seekAudio);
         });
 
@@ -540,7 +570,7 @@
 
             // Aggiorna l'interfaccia
             document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
-            document.getElementById('playPauseBtn').innerText = 'Pause';
+            document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
 
             // Mostra il player
             const player = document.getElementById('player');
@@ -576,10 +606,10 @@
 
             if (playerState.isPlaying) {
                 currentAudio.play();
-                document.getElementById('playPauseBtn').innerText = 'Pause';
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
             } else {
                 currentAudio.pause();
-                document.getElementById('playPauseBtn').innerText = 'Play';
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
             }
 
             // Aggiorna l'interfaccia del player
@@ -596,11 +626,11 @@
                 event.stopPropagation(); // Impedisce la propagazione al player
                 if (currentAudio.paused) {
                     currentAudio.play();
-                    this.innerText = 'Pause';
+                    this.innerHTML = '<i class="fas fa-pause"></i>';
                     savePlayerState(); // Salva lo stato ogni volta che cambia
                 } else {
                     currentAudio.pause();
-                    this.innerText = 'Play';
+                    this.innerHTML = '<i class="fas fa-play"></i>';
                     savePlayerState(); // Salva lo stato ogni volta che cambia
                 }
             };
