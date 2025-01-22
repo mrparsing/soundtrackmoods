@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>soundtrackmoods - Home</title>
     <link rel="stylesheet" href="css/index_style.css">
-
-    <script src="js/script.js"></script>
 </head>
 
 <body>
@@ -42,6 +40,20 @@
 </body>
 
 <script type="module">
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then((registration) => {
+                    console.log('[Service Worker] Registered:', registration);
+                })
+                .catch((error) => {
+                    console.error('[Service Worker] Registration failed:', error);
+                });
+        });
+    }
+
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
     import { getFirestore, doc, getDoc, getDocs, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js"; // Corretto import
 

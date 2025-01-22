@@ -1,11 +1,12 @@
-const CACHE_NAME = 'v2'; // Aggiorna il numero di versione quando cambi i file da cache
+const CACHE_NAME = 'pwa-cache-v1';
 const urlsToCache = [
-  'index.html',
-  'manifest.json',
-  'css/index_style.css'
+  '/index.html',
+  '/manifest.json',
+  '/css/index_style.css',
+  '/assets/workout.jpg',
 ];
 
-// Installazione del service worker e caching dei file
+// Installazione del Service Worker
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
@@ -14,43 +15,28 @@ self.addEventListener('install', function (event) {
   );
 });
 
-// Intercetta le richieste e risponde con i file dalla cache
-self.addEventListener('fetch', function (event) {
-  event.respondWith(
-    caches.match(event.request).then(function (response) {
-      // Controlla se la richiesta è in cache, altrimenti effettua una richiesta di rete
-      return response || fetch(event.request);
-    })
-  );
-});
-
-// Aggiornamento del service worker e gestione della cache
-self.addEventListener('activate', function (event) {
-  const cacheWhitelist = [CACHE_NAME];
+// Attivazione e pulizia delle vecchie cache
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(function (cacheNames) {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map(function (cacheName) {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('[Service Worker] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
+  self.clients.claim();
 });
 
-self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Forza l'attivazione del nuovo Service Worker
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim()); // Assicura che il nuovo SW prenda il controllo
-});
-
-// Invia un messaggio al client quando l'installazione è completata
-self.addEventListener('message', (event) => {
-  if (event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+// Recupera i file dalla cache o dalla rete
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
+  );
 });

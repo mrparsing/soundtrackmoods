@@ -1,8 +1,8 @@
 {
   "name": "soundtrackmoods",
   "short_name": "soundtrackmoods",
-  "description": "soundtrackmoods",
-  "start_url": "index.html",
+  "description": "Ascolta la tua musica",
+  "start_url": "/index.html",
   "display": "standalone",
   "icons": [
     {
@@ -17,3 +17,4 @@
     }
   ]
 }
+
