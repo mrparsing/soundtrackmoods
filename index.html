@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>soundtrackmoods - Home</title>
     <link rel="stylesheet" href="css/index_style.css">
+
     <script src="js/script.js"></script>
 </head>
 
@@ -17,6 +18,16 @@
     <div class="main-content">
         <div class="menu">
             <a href="pages/all-tracks.html?tipo=all-tracks">All tracks</a>
+            <a href="pages/add-track.html" style="margin-right: 30px;">Add track</a>
+        </div>
+        <a id="createPlaylistBtn" class="create-playlist-btn">Create New Playlist</a>
+        <div id="playlistModal" class="playlist-modal">
+            <div class="playlist-modal-content">
+                <h3>Enter Playlist Name</h3>
+                <input type="text" id="playlistName" placeholder="Playlist Name">
+                <button id="savePlaylistBtn">Save Playlist</button>
+                <button id="cancelPlaylistBtn">Cancel</button>
+            </div>
         </div>
         <h2>Your Playlists</h2>
         <div class="playlist-section">
@@ -32,7 +43,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js"; // Corretto import
+    import { getFirestore, doc, getDoc, getDocs, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js"; // Corretto import
 
     // Configurazione Firebase
     const firebaseConfig = {
@@ -48,6 +59,48 @@
     // Inizializza Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    const createPlaylistBtn = document.getElementById('createPlaylistBtn');
+    const playlistModal = document.getElementById('playlistModal');
+    const savePlaylistBtn = document.getElementById('savePlaylistBtn');
+    const cancelPlaylistBtn = document.getElementById('cancelPlaylistBtn');
+    const playlistNameInput = document.getElementById('playlistName');
+
+    // Funzione per aprire il modal
+    createPlaylistBtn.addEventListener('click', () => {
+        playlistModal.style.display = 'block'; // Mostra il modal
+    });
+
+    // Funzione per chiudere il modal
+    cancelPlaylistBtn.addEventListener('click', () => {
+        playlistModal.style.display = 'none'; // Nascondi il modal
+    });
+
+    savePlaylistBtn.addEventListener('click', async () => {
+        const playlistName = playlistNameInput.value.trim();
+
+        if (playlistName) {
+            try {
+                // Aggiungi la playlist alla collezione "playlists" in Firestore
+                const docRef = await addDoc(collection(db, "playlists"), {
+                    name: playlistName,
+                    tracks: [] // Playlist inizialmente vuota
+                });
+
+                console.log("Playlist aggiunta con ID: ", docRef.id);
+                alert('Playlist creata con successo!');
+
+                // Chiudi il modal dopo aver aggiunto la playlist
+                playlistModal.style.display = 'none';
+                playlistNameInput.value = ''; // Resetta il campo input
+            } catch (e) {
+                console.error("Errore nel creare la playlist: ", e);
+                alert('Errore nella creazione della playlist.');
+            }
+        } else {
+            alert('Per favore, inserisci un nome valido per la playlist.');
+        }
+    });
 
     // Funzione per recuperare e stampare i brani
     async function getTracks() {

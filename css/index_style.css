@@ -80,7 +80,8 @@ body {
     background-color: #1AA34A;
 }
 
-.playlist-section, .playlist-section-author {
+.playlist-section,
+.playlist-section-author {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
@@ -131,4 +132,78 @@ body {
 
 a {
     text-decoration: none;
+}
+
+#createPlaylistBtn,
+#savePlaylistBtn,
+#cancelPlaylistBtn {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #1DB954, #1AA34A);
+    padding: 10px 20px;
+    border-radius: 50px;
+    transition: background-color 0.3s, transform 0.3s;
+    text-align: center;
+}
+
+#createPlaylistBtn:hover,
+#cancelPlaylistBtn:hover,
+#savePlaylistBtn:hover {
+    background-color: #1AA34A;
+    color: white;
+    transform: scale(1.1);
+}
+
+
+.playlist-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Centra la finestra modale */
+    width: 80%;
+    max-width: 400px;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    /* Assicurati che la modale si sovrapponga al contenuto */
+}
+
+.playlist-modal-content {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    color: white;
+}
+
+#playlistName {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #444;
+    color: white;
+    border: 1px solid #666;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.create-playlist-btn {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    margin-top: 20px;
+    display: inline-block;
+}
+
+.create-playlist-btn:hover {
+    background-color: #0056b3;
 }

@@ -64,16 +64,27 @@ h2 {
 }
 
 .song-info {
-    display: flex;
-    gap: 20px;
-    align-items: center;
+    flex: 1; /* Consente di occupare tutto lo spazio disponibile */
+    max-width: calc(100% - 100px); /* Regola questa larghezza in base agli altri elementi (ad esempio il pulsante Play) */
+    overflow: hidden; /* Impedisce al contenuto interno di superare i bordi */
 }
 
 .song-title {
     font-size: 18px;
     font-weight: bold;
-    flex: 2;
     color: white;
+    margin-bottom: 5px;
+    white-space: nowrap; /* Evita che il testo vada su più righe */
+    overflow: hidden; /* Nasconde il contenuto in eccesso */
+    text-overflow: ellipsis; /* Aggiunge "..." per indicare che il testo è troncato */
+}
+
+.song-author {
+    font-size: 14px;
+    color: #ccc;
+    white-space: nowrap; /* Evita che il testo vada su più righe */
+    overflow: hidden; /* Nasconde il contenuto in eccesso */
+    text-overflow: ellipsis; /* Aggiunge "..." per indicare che il testo è troncato */
 }
 
 .song-author,
@@ -81,7 +92,7 @@ h2 {
     font-size: 14px;
     color: #ccc;
     flex: 1;
-    width: 80px;
+    width: 350px;
 }
 
 .play-button {
@@ -126,6 +137,7 @@ h2 {
 
 .player.show .song-details {
     margin-top: 40px;
+    max-width: 90%;
 }
 
 .player.expanded {
@@ -137,7 +149,7 @@ h2 {
     display: none;
     width: 100px;
     height: 100px;
-    margin-top: 20px;
+    margin-top: 170px;
     background-color: #333;
     border-radius: 10px;
     margin-bottom: 15px;
@@ -251,20 +263,15 @@ h2 {
     margin-bottom: 5px;
 }
 
-.song-title {
-    font-size: 18px;
-    font-weight: bold;
-    color: white;
-    margin-bottom: 5px;
-}
-
 .song-author {
     font-size: 14px;
     color: #ccc;
 }
 
 .menu a,
-#createPlaylistBtn, #savePlaylistBtn, #cancelPlaylistBtn {
+#createPlaylistBtn,
+#savePlaylistBtn,
+#cancelPlaylistBtn {
     display: inline-block;
     text-decoration: none;
     color: white;
@@ -278,7 +285,9 @@ h2 {
 }
 
 .menu a:hover,
-#createPlaylistBtn:hover, #cancelPlaylistBtn:hover, #savePlaylistBtn:hover {
+#createPlaylistBtn:hover,
+#cancelPlaylistBtn:hover,
+#savePlaylistBtn:hover {
     background-color: #1AA34A;
     color: white;
     transform: scale(1.1);
@@ -376,23 +385,35 @@ h2 {
 
 /* CSS per la sezione delle playlist */
 .playlist-section {
-    position: fixed; /* Fissa la posizione nella finestra */
-    top: 50%; /* Centra verticalmente */
-    left: 50%; /* Centra orizzontalmente */
-    transform: translate(-50%, -50%); /* Sposta la sezione indietro per centrarla perfettamente */
-    width: 80%; /* Imposta una larghezza (puoi modificarla in base al design) */
-    max-width: 600px; /* Imposta una larghezza massima per evitare che sia troppo larga */
+    position: fixed;
+    /* Fissa la posizione nella finestra */
+    top: 50%;
+    /* Centra verticalmente */
+    left: 50%;
+    /* Centra orizzontalmente */
+    transform: translate(-50%, -50%);
+    /* Sposta la sezione indietro per centrarla perfettamente */
+    width: 80%;
+    /* Imposta una larghezza (puoi modificarla in base al design) */
+    max-width: 600px;
+    /* Imposta una larghezza massima per evitare che sia troppo larga */
     padding: 20px;
-    background-color: #333; /* Imposta uno sfondo bianco per farla risaltare */
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Aggiungi un'ombra per migliorare la visibilità */
+    background-color: #333;
+    /* Imposta uno sfondo bianco per farla risaltare */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    /* Aggiungi un'ombra per migliorare la visibilità */
     border-radius: 10px;
-    z-index: 1000; /* Assicurati che sia sopra ad altri contenuti */
-    display: none; /* Inizialmente nascosta */
-    overflow-y: auto; /* Aggiungi lo scroll se il contenuto è troppo lungo */
+    z-index: 1000;
+    /* Assicurati che sia sopra ad altri contenuti */
+    display: none;
+    /* Inizialmente nascosta */
+    overflow-y: auto;
+    /* Aggiungi lo scroll se il contenuto è troppo lungo */
 }
 
 .playlist-section h3 {
-    margin-top: 0; /* Rimuove il margine superiore */
+    margin-top: 0;
+    /* Rimuove il margine superiore */
 }
 
 .playlist-section label {
@@ -402,4 +423,22 @@ h2 {
 
 .playlist-section input[type="checkbox"] {
     margin-right: 10px;
+}
+
+.delete-playlist-btn {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 10px 10px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 30px; /* Distanza tra la lista delle canzoni e il bottone */
+    display: block; /* Rende il bottone un blocco che occupa tutta la larghezza disponibile */
+    text-align: center; /* Centra il testo dentro il bottone */
+    margin-bottom: 250px;
+}
+
+.delete-playlist-btn:hover {
+    background-color: #ff1a1a;
 }

@@ -40,6 +40,9 @@
         <ul class="song-list" id="songList">
             <!-- Songs will be dynamically added here -->
         </ul>
+
+        <a id="deletePlaylistBtn" class="delete-playlist-btn">Delete Playlist</a>
+
     </div>
 
     <!-- Expanded Player -->
@@ -73,7 +76,7 @@
         }
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js"; // Importa Firestore
+        import { getFirestore, collection, addDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js"; // Importa Firestore
 
         // Configurazione Firebase
         const firebaseConfig = {
@@ -136,7 +139,7 @@
 
 
 
-        import { query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
+        import { query, where, getDocs, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
 
         // Funzione per recuperare i brani per una playlist specifica
         async function getSongsByPlaylist(playlistName) {
@@ -277,7 +280,7 @@
         <div id="playlist-container-${index}">
             <!-- Le playlist per questo brano verranno caricate qui -->
         </div>
-        <button onclick="savePlaylists(${index})">Save Changes</button>
+        <button onclick="closePlaylistSection(${index})">Close</button>
     </div>
     `;
             } else {
@@ -308,11 +311,16 @@
         <div id="playlist-container-${index}">
             <!-- Le playlist per questo brano verranno caricate qui -->
         </div>
-        <button onclick="savePlaylists(${index})">Save Changes</button>
+        <button onclick="closePlaylistSection(${index})">Close</button>
     </div>
     `;
             }
             songListElement.appendChild(songItem);
+        }
+
+        window.closePlaylistSection = function closePlaylistSection(index) {
+            const playlistSection = document.getElementById(`playlist-section-${index}`);
+            playlistSection.style.display = "none"; // Nascondi la sezione
         }
 
         window.toggleMenu = function toggleMenu(index) {
@@ -336,8 +344,8 @@
 
         async function loadPlaylists(index) {
             const db = getFirestore();
-            const playlistsRef = collection(db, "playlists"); // Supponiamo che le playlist siano nella collezione "playlists"
-            const songTitle = songs[index].title; // Prendi il titolo del brano per sapere quale playlist aggiungere
+            const playlistsRef = collection(db, "playlists");
+            const songTitle = songs[index].title; // Ottieni il titolo della canzone selezionata
 
             try {
                 // Recupera tutte le playlist dal database
@@ -349,12 +357,11 @@
 
                 // Itera su tutte le playlist
                 querySnapshot.forEach(doc => {
-                    const playlistData = doc.data(); // Ottieni i dati della playlist
+                    const playlistData = doc.data();
                     const playlistName = playlistData.name; // Nome della playlist
-                    const playlistId = doc.id; // ID della playlist
-                    const songsInPlaylist = playlistData.songs || []; // Brani nella playlist
+                    const songsInPlaylist = playlistData.tracks || []; // Brani nella playlist
 
-                    // Verifica se il brano è già presente nella playlist
+                    // Verifica se la canzone selezionata è nella playlist
                     const isSongInPlaylist = songsInPlaylist.includes(songTitle);
 
                     // Crea un elemento per la playlist con una checkbox
@@ -363,15 +370,15 @@
 
                     const checkbox = document.createElement("input");
                     checkbox.type = "checkbox";
-                    checkbox.checked = isSongInPlaylist; // Se il brano è nella playlist, la checkbox è selezionata
-                    checkbox.id = `checkbox-${playlistId}-${index}`;
+                    checkbox.checked = isSongInPlaylist; // Se la canzone è nella playlist, seleziona la checkbox
+                    checkbox.id = `checkbox-${doc.id}-${index}`;
 
-                    // Associa un evento alla checkbox per aggiungere o rimuovere il brano dalla playlist
+                    // Associa un evento alla checkbox per aggiungere o rimuovere la canzone dalla playlist
                     checkbox.addEventListener("change", () => {
                         if (checkbox.checked) {
-                            addSongToPlaylist(songTitle, playlistId); // Aggiungi il brano alla playlist
+                            addSongToPlaylist(songTitle, doc.id); // Aggiungi la canzone alla playlist
                         } else {
-                            removeSongFromPlaylist(songTitle, playlistId); // Rimuovi il brano dalla playlist
+                            removeSongFromPlaylist(songTitle, doc.id); // Rimuovi la canzone dalla playlist
                         }
                     });
 
@@ -386,6 +393,10 @@
                     // Aggiungi l'elemento della playlist al contenitore
                     playlistContainer.appendChild(playlistItem);
                 });
+
+                // Mostra il banner
+                const playlistSection = document.getElementById(`playlist-section-${index}`);
+                playlistSection.style.display = "block";
             } catch (error) {
                 console.error("Errore nel caricare le playlist:", error);
             }
@@ -396,11 +407,10 @@
             const playlistRef = doc(db, "playlists", playlistId);
 
             try {
-                // Aggiungi la canzone alla playlist
                 await updateDoc(playlistRef, {
-                    songs: arrayUnion(songTitle) // Usa arrayUnion per evitare duplicati
+                    tracks: arrayUnion(songTitle)
                 });
-                console.log(`Canzone '${songTitle}' aggiunta alla playlist '${playlistId}'`);
+                console.log(`Canzone '${songTitle}' aggiunta alla playlist con ID ${playlistId}.`);
             } catch (error) {
                 console.error("Errore nell'aggiungere la canzone alla playlist:", error);
             }
@@ -411,11 +421,10 @@
             const playlistRef = doc(db, "playlists", playlistId);
 
             try {
-                // Rimuovi la canzone dalla playlist
                 await updateDoc(playlistRef, {
-                    songs: arrayRemove(songTitle) // Usa arrayRemove per rimuovere il brano
+                    tracks: arrayRemove(songTitle)
                 });
-                console.log(`Canzone '${songTitle}' rimossa dalla playlist '${playlistId}'`);
+                console.log(`Canzone '${songTitle}' rimossa dalla playlist con ID ${playlistId}.`);
             } catch (error) {
                 console.error("Errore nel rimuovere la canzone dalla playlist:", error);
             }
@@ -786,6 +795,42 @@
                 }
             }
         }
+
+        async function deletePlaylist() {
+            const db = getFirestore();
+            const playlistsRef = collection(db, "playlists");
+            let playlist = getQueryParams();
+            try {
+                // Chiedi all'utente quale playlist eliminare
+                const playlistName = playlist;
+
+                // Trova la playlist nel database
+                const querySnapshot = await getDocs(playlistsRef);
+                let playlistToDelete = null;
+
+                querySnapshot.forEach(doc => {
+                    const playlistData = doc.data();
+                    if (playlistData.name === playlistName) {
+                        playlistToDelete = doc.id; // Salva l'ID della playlist
+                    }
+                });
+
+                if (!playlistToDelete) {
+                    alert("Playlist not found.");
+                    return;
+                }
+
+                // Elimina la playlist
+                await deleteDoc(doc(db, "playlists", playlistToDelete));
+                alert(`Playlist "${playlistName}" has been deleted.`);
+                window.location.href = "../index.html"
+            } catch (error) {
+                console.error("Error deleting playlist:", error);
+                alert("An error occurred while deleting the playlist.");
+            }
+        }
+
+        document.getElementById("deletePlaylistBtn").addEventListener("click", deletePlaylist);
     </script>
 </body>
 
