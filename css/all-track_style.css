@@ -48,6 +48,7 @@ h2 {
 .song-list {
     list-style-type: none;
     padding: 0;
+    margin-bottom: 400px;
 }
 
 .song-item {
