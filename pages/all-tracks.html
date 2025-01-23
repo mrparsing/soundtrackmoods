@@ -246,14 +246,10 @@
         let params = getQueryParams();
 
         if (params.tipo === "all-tracks" && !params.author) {
-            console.log("CIAO1");
             document.addEventListener('DOMContentLoaded', getAllTracks);
         } else if (!params.author) {
-            console.log("CIAO2", params.tipo);
             document.addEventListener('DOMContentLoaded', getSongsByPlaylist(params.tipo));
-            console.log("CIAO22", songs);
         } else {
-            console.log("CIAO3");
             document.addEventListener('DOMContentLoaded', loadTracksByAuthor(params.author));
         }
 
@@ -281,7 +277,6 @@
 
 
         async function addSongToList(song, index, all_track) {
-            console.log("all-tracks", all_track);
             const songListElement = document.getElementById('songList');
             const songItem = document.createElement('li');
             songItem.className = 'song-item';
@@ -523,7 +518,7 @@
         }
 
         document.getElementById('progressBar').onclick = function (event) {
-                event.stopPropagation(); // Impedisce la propagazione al player
+            event.stopPropagation(); // Impedisce la propagazione al player
         };
 
 
@@ -562,18 +557,23 @@
             currentSongIndex = index;
 
             let song;
-            // console.log(songs[currentSongIndex]);
+            let title;
+            let author;
             let params = getQueryParams();
-            if (params.tipo === "all-tracks") {
+            if (params.tipo === "all-tracks" || params.author) {
                 song = songs[currentSongIndex];
+                title = song.title;
+                author = params.author;
             } else {
                 song = await getInfoTrack(songs[currentSongIndex]);
+                author = song.author;
+                title = song.title;
             }
 
             if (!currentAudio) {
-                currentAudio = new Audio(audioFolderPath + song.title + ".mp3");
+                currentAudio = new Audio(audioFolderPath + title + ".mp3");
             } else {
-                currentAudio.src = audioFolderPath + song.title + ".mp3";
+                currentAudio.src = audioFolderPath + title + ".mp3";
                 currentAudio.currentTime = 0;
             }
 
@@ -584,8 +584,8 @@
 
             // Aggiorna il titolo e l'autore
 
-            document.getElementById('songTitle').textContent = song.title;
-            document.getElementById('songAuthor').textContent = song.author;
+            document.getElementById('songTitle').textContent = title;
+            document.getElementById('songAuthor').textContent = author;
 
             // Aggiorna l'interfaccia
             document.getElementById('cover').style.backgroundImage = `url(${audioFolderPath}${song.cover})`;
@@ -889,14 +889,13 @@
 
         function checkTextOverflow() {
             const songItems = document.querySelectorAll('.song-info');
-            console.log(songItems);
+
             songItems.forEach(item => {
                 const title = item.querySelector('.song-title');
                 const author = item.querySelector('.song-author');
 
                 // Verifica se il titolo è troppo largo
-                console.log("Scrollwidth", title.scrollWidth);
-                console.log("offsetWidth", title.offsetWidth);
+
                 if (title.scrollWidth > title.offsetWidth) {
 
                     title.classList.add('scroll-text'); // Aggiunge l'animazione
@@ -906,8 +905,6 @@
 
                 // Verifica se l'autore è troppo largo
                 if (author.scrollWidth > author.offsetWidth) {
-                    console.log("CIAO");
-
                     author.classList.add('scroll-text'); // Aggiunge l'animazione
                 } else {
                     author.classList.remove('scroll-text'); // Rimuove l'animazione se non è necessario
@@ -938,10 +935,8 @@
                     const data = docSnap.data();
                     const tracks = data.tracks;
                     songs = tracks;
-                    console.log(songs[0].author);
-                    const filteredTracks = songs.filter(track => track.author === author);
 
-                    console.log(filteredTracks);
+                    const filteredTracks = songs.filter(track => track.author === author);
 
                     if (Array.isArray(tracks) && tracks.length > 0) {
                         // Stampa ogni brano nel log
