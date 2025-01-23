@@ -136,6 +136,7 @@ h2 {
 
 .player .song-title {
     font-size: 25px;
+    width: 80%;
 }
 
 .player .song-author {
@@ -289,7 +290,8 @@ h2 {
 .menu a,
 #createPlaylistBtn,
 #savePlaylistBtn,
-#cancelPlaylistBtn {
+#cancelPlaylistBtn,
+#closeBtn {
     display: inline-block;
     text-decoration: none;
     color: white;
@@ -305,10 +307,11 @@ h2 {
 .menu a:hover,
 #createPlaylistBtn:hover,
 #cancelPlaylistBtn:hover,
-#savePlaylistBtn:hover {
+#savePlaylistBtn:hover,
+#closeBtn:hover {
     background-color: #1AA34A;
     color: white;
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 .playlist-modal {
@@ -509,4 +512,22 @@ h2 {
 #playPauseBtn {
     width: 70px;
     height: 70px;
+}
+
+.playlist-item {
+    display: flex;
+    flex-direction: row;
+    font-size: 20px;
+}
+
+input {
+    margin-bottom: 12px;
+    width: 30px;
+}
+
+
+#divCloseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

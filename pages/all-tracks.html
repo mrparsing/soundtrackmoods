@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <title>All Songs</title>
     <link rel="stylesheet" href="../css/all-track_style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -20,18 +20,18 @@
     <div class="main-content">
         <div class="menu">
             <a href="../index.html">Home</a>
-            <a href="add-track.html" style="margin-right: 30px;">Add track</a>
+            <a href="add-track.html" style="margin-right: 30px;">Aggiungi brano</a>
         </div>
 
         <!-- Button to create new playlist -->
-        <a id="createPlaylistBtn" class="create-playlist-btn">Create New Playlist</a>
+        <a id="createPlaylistBtn" class="create-playlist-btn">Crea una nuova Playlist</a>
 
         <!-- Modal for entering playlist name -->
         <div id="playlistModal" class="playlist-modal">
             <div class="playlist-modal-content">
                 <h3>Enter Playlist Name</h3>
                 <input type="text" id="playlistName" placeholder="Playlist Name">
-                <button id="savePlaylistBtn">Save Playlist</button>
+                <button id="savePlaylistBtn">Salva Playlist</button>
                 <button id="cancelPlaylistBtn">Cancel</button>
             </div>
         </div>
@@ -41,7 +41,7 @@
             <!-- Songs will be dynamically added here -->
         </ul>
 
-        <a id="deletePlaylistBtn" class="delete-playlist-btn">Delete Playlist</a>
+        <a id="deletePlaylistBtn" class="delete-playlist-btn">Elimina Playlist</a>
 
     </div>
 
@@ -192,10 +192,11 @@
                     }
                 });
 
+                songs = foundPlaylist.tracks;
+
                 if (foundPlaylist) {
                     // Se troviamo la playlist, stampiamo i brani nel log
                     if (Array.isArray(foundPlaylist.tracks)) {
-                        console.log(foundPlaylist.tracks);
 
                         foundPlaylist.tracks.forEach((track, index) => {
                             addSongToList(track, index, false);
@@ -245,10 +246,14 @@
         let params = getQueryParams();
 
         if (params.tipo === "all-tracks" && !params.author) {
+            console.log("CIAO1");
             document.addEventListener('DOMContentLoaded', getAllTracks);
         } else if (!params.author) {
+            console.log("CIAO2", params.tipo);
             document.addEventListener('DOMContentLoaded', getSongsByPlaylist(params.tipo));
+            console.log("CIAO22", songs);
         } else {
+            console.log("CIAO3");
             document.addEventListener('DOMContentLoaded', loadTracksByAuthor(params.author));
         }
 
@@ -303,17 +308,19 @@
                 <div class="menu-container">
         <button class="menu-button" onclick="toggleMenu(${index})">⋮</button>
         <ul class="menu-options" id="menu-${index}">
-            <li onclick="deleteSong(${index})">Delete</li>
-            <li onclick="togglePlaylist(${index})">Add/Remove from Playlist</li>
+            <li onclick="deleteSong(${index})">Elimina</li>
+            <li onclick="togglePlaylist(${index})">Aggiungi/Rimuovi da Playlist</li>
         </ul>
     </div>
     <div id="playlist-section-${index}" class="playlist-section" style="display: none;">
-        <h3>Select Playlists</h3>
+        <h3>Seleziona Playlist</h3>
         <div id="playlist-container-${index}">
             <!-- Le playlist per questo brano verranno caricate qui -->
         </div>
-        <button onclick="closePlaylistSection(${index})">Close</button>
-    </div>
+        <div id="divCloseBtn">
+        <button onclick="closePlaylistSection(${index})" id="closeBtn">Chiudi</button>
+        </div>
+        </div>
     `;
             } else {
                 try {
@@ -334,16 +341,18 @@
                 <div class="menu-container">
         <button class="menu-button" onclick="toggleMenu(${index})">⋮</button>
         <ul class="menu-options" id="menu-${index}">
-            <li onclick="deleteSong(${index})">Delete</li>
-            <li onclick="togglePlaylist(${index})">Add/Remove from Playlist</li>
+            <li onclick="deleteSong(${index})">Elimina</li>
+            <li onclick="togglePlaylist(${index})">Aggiungi/Rimuovi da Playlist</li>
         </ul>
     </div>
     <div id="playlist-section-${index}" class="playlist-section" style="display: none;">
-        <h3>Select Playlists</h3>
+        <h3>Selezina Playlist</h3>
         <div id="playlist-container-${index}">
             <!-- Le playlist per questo brano verranno caricate qui -->
         </div>
-        <button onclick="closePlaylistSection(${index})">Close</button>
+        <div id="divCloseBtn">
+        <button onclick="closePlaylistSection(${index})" id="closeBtn">Chiudi</button>
+        </div>
     </div>
     `;
             }
@@ -513,8 +522,12 @@
             }
         }
 
+        document.getElementById('progressBar').onclick = function (event) {
+                event.stopPropagation(); // Impedisce la propagazione al player
+        };
+
+
         function updateProgressBar(event) {
-            event.stopPropagation();
             const progressBar = document.getElementById('progressBar');
             if (currentAudio) {
                 progressBar.value = (currentAudio.currentTime / currentAudio.duration) * 100;
@@ -541,15 +554,21 @@
         }
 
         // Funzione per riprodurre la canzone
-        window.playSong = function playSong(index) {
+        window.playSong = async function playSong(index) {
             if (currentAudio && !currentAudio.paused) {
                 currentAudio.pause();
             }
 
             currentSongIndex = index;
 
-
-            const song = songs[currentSongIndex];
+            let song;
+            // console.log(songs[currentSongIndex]);
+            let params = getQueryParams();
+            if (params.tipo === "all-tracks") {
+                song = songs[currentSongIndex];
+            } else {
+                song = await getInfoTrack(songs[currentSongIndex]);
+            }
 
             if (!currentAudio) {
                 currentAudio = new Audio(audioFolderPath + song.title + ".mp3");
@@ -906,7 +925,7 @@
 
 
         async function loadTracksByAuthor(author) {
-            console.log("cds", author);
+
             const db = getFirestore(); // Recupera l'istanza di Firestore
             const tracksDocRef = doc(db, "all-tracks", "tracksDocument"); // Riferimento al documento tracksDocument
 
