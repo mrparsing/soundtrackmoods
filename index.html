@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <title>soundtrackmoods - Home</title>
     <link rel="stylesheet" href="css/index_style.css">
     <link rel="manifest" href="manifest.json">
@@ -121,6 +121,7 @@
     // Funzione per recuperare e stampare i brani
     async function getTracks() {
         const tracksDocRef = doc(db, "all-tracks", "tracksDocument");
+        let authors = []; // Array per memorizzare gli autori unici
 
         try {
             const docSnap = await getDoc(tracksDocRef);
@@ -128,11 +129,19 @@
                 const tracksData = docSnap.data();
 
                 if (tracksData && tracksData.tracks) {
-                    // Stampa tutti i brani nel log
+                    // Itera sui brani
                     tracksData.tracks.forEach((track) => {
                         console.log(`Titolo: ${track.title}, Autore: ${track.author}, Copertura: ${track.cover}`);
-                        loadPlaylistsFromAuthors(track.author);
+
+                        // Controlla se l'autore è già presente nell'array
+                        if (!authors.includes(track.author)) {
+                            authors.push(track.author); // Aggiungi l'autore all'array se non è già presente
+                        }
+
                     });
+
+                    // Stampa l'elenco di autori unici
+                    console.log("Autori unici:", authors);
                 } else {
                     console.log("Nessun brano trovato.");
                 }
@@ -142,6 +151,11 @@
         } catch (error) {
             console.error("Errore nel recuperare i brani:", error);
         }
+        // Carica le playlist dall'autore
+        authors.forEach((author) => {
+            loadPlaylistsFromAuthors(author);
+
+        });
     }
     document.addEventListener('DOMContentLoaded', getTracks);
 

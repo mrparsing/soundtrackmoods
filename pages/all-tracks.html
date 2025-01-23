@@ -1040,8 +1040,9 @@
 
                     const filteredTracks = songs.filter(track => track.author === author);
 
+                    songs = filteredTracks;
+
                     if (Array.isArray(tracks) && tracks.length > 0) {
-                        // Stampa ogni brano nel log
                         filteredTracks.forEach((track, index) => {
                             addSongToList(track, index, true);
                         });
