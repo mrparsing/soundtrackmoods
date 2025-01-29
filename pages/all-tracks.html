@@ -718,6 +718,8 @@
             // Mostra il player
             const player = document.getElementById('player');
             player.classList.add('show');
+
+            showTitle(title);
         }
 
         function savePlayerState() {
@@ -1078,6 +1080,29 @@
 
             } catch (error) {
                 console.error("Errore nel caricare i brani dell'autore:", error);
+            }
+        }
+
+        async function showTitle(songTitle) {
+            if ("mediaSession" in navigator) {
+                let infoTrack = await getInfoTrack(songTitle);
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: infoTrack.title,
+                    artist: infoTrack.author,
+                    artwork: [
+                        { src: infoTrack.cover, sizes: "512x512", type: "image/jpg" },
+                    ],
+                });
+
+                // Aggiungere controlli multimediali per interazione con la schermata di blocco
+                navigator.mediaSession.setActionHandler("play", () => currentAudio.play());
+                navigator.mediaSession.setActionHandler("pause", () => currentAudio.pause());
+                navigator.mediaSession.setActionHandler("seekbackward", (details) => {
+                    currentAudio.currentTime = Math.max(0, currentAudio.currentTime - (details.seekOffset || 10));
+                });
+                navigator.mediaSession.setActionHandler("seekforward", (details) => {
+                    currentAudio.currentTime = Math.min(audio.duration, currentAudio.currentTime + (details.seekOffset || 10));
+                });
             }
         }
     </script>
