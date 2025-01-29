@@ -1098,13 +1098,13 @@
                 navigator.mediaSession.setActionHandler("play", () => currentAudio.play());
                 navigator.mediaSession.setActionHandler("pause", () => currentAudio.pause());
                 navigator.mediaSession.setActionHandler("seekbackward", (details) => {
-                    currentAudio.currentTime = Math.max(0, currentAudio.currentTime - (details.seekOffset || 10));
+                    currentAudio.currentTime -= 10;
                 });
                 navigator.mediaSession.setActionHandler("seekforward", (details) => {
-                    currentAudio.currentTime = Math.min(audio.duration, currentAudio.currentTime + (details.seekOffset || 10));
+                    currentAudio.currentTime += 10;
                 });
-                navigator.mediaSession.setActionHandler("nexttrack", () => playNextTrack());
-                navigator.mediaSession.setActionHandler("previoustrack", () => playPreviousTrack());
+                navigator.mediaSession.setActionHandler("nexttrack", () => nextSong());
+                navigator.mediaSession.setActionHandler("previoustrack", () => prevSong());
             }
         }
     </script>
