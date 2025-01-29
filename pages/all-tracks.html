@@ -1103,6 +1103,8 @@
                 navigator.mediaSession.setActionHandler("seekforward", (details) => {
                     currentAudio.currentTime = Math.min(audio.duration, currentAudio.currentTime + (details.seekOffset || 10));
                 });
+                navigator.mediaSession.setActionHandler("nexttrack", () => playNextTrack());
+                navigator.mediaSession.setActionHandler("previoustrack", () => playPreviousTrack());
             }
         }
     </script>
