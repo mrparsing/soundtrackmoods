@@ -41,7 +41,7 @@
             <!-- Songs will be dynamically added here -->
         </ul>
 
-        <div class="optionBtn", id="option-btn">
+        <div class="optionBtn" , id="option-btn">
             <a id="addTrackBtn" class="add-tracks-btn">Aggiungi brano alla playlist</a>
             <a id="deletePlaylistBtn" class="delete-playlist-btn">Elimina Playlist</a>
         </div>
@@ -63,6 +63,7 @@
         <div class="song-details">
             <div id="songTitle" class="song-title"></div>
             <div id="songAuthor" class="song-author"></div>
+            <div id="songTime" class="song-time"></div>
         </div>
         <div class="progress-wrapper" id="progressWrapper">
             <input type="range" id="progressBar" class="progress-bar" value="0" min="0" max="100" step="0.1" />
@@ -423,7 +424,6 @@
                     console.error('Errore nel calcolare la durata:', error);
                     track_duration = 'N/A';
                 }
-
                 songItem.innerHTML = `
         <div class="song-info">
             <div class="song-title">${song.title}</div>
@@ -662,10 +662,15 @@
             let title;
             let author;
             let params = getQueryParams();
-            if (params.tipo === "all-tracks" || params.author) {
+            if (params.tipo === "all-tracks") {
                 song = songs[currentSongIndex];
                 title = song.title;
-                author = params.author;
+                author = song.author;
+            }
+            else if (params.author) {
+                song = songs[currentSongIndex];
+                title = song.title;
+                author = song.author;
             } else {
                 song = await getInfoTrack(songs[currentSongIndex]);
                 author = song.author;
@@ -684,7 +689,24 @@
 
             currentAudio.play();
 
-            // Aggiorna il titolo e l'autore
+            let interval;
+            function updateTime() {
+                const currentTime = Math.floor(currentAudio.currentTime); // Tempo in secondi
+                const minutes = Math.floor(currentTime / 60);
+                const seconds = currentTime % 60;
+                document.getElementById("songTime").textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                //timeDisplay.innerText = `Minutaggio: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            currentAudio.addEventListener("play", () => {
+                clearInterval(interval); // Evita doppi intervalli
+                interval = setInterval(updateTime, 1000);
+            });
+
+            // Ferma l'intervallo quando l'audio è in pausa o finisce
+            currentAudio.addEventListener("pause", () => clearInterval(interval));
+            currentAudio.addEventListener("ended", () => clearInterval(interval));
+
 
             document.getElementById('songTitle').textContent = title;
             document.getElementById('songAuthor').textContent = author;
@@ -999,7 +1021,6 @@
                 // Verifica se il titolo è troppo largo
 
                 if (title.scrollWidth > title.offsetWidth) {
-
                     title.classList.add('scroll-text'); // Aggiunge l'animazione
                 } else {
                     title.classList.remove('scroll-text'); // Rimuove l'animazione se non è necessario

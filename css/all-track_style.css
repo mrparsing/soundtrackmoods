@@ -153,7 +153,7 @@ h2 {
 }
 
 .player.show .song-details {
-    margin-top: 28px;
+    margin-top: 20px;
     max-width: 90%;
 }
 
@@ -596,4 +596,9 @@ input {
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
+}
+
+#songTime {
+    margin-top: 12px;
+    font-size: 20px;
 }
