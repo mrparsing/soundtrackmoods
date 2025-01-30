@@ -380,77 +380,48 @@
             const songItem = document.createElement('li');
             songItem.className = 'song-item';
 
-            let info_track;
+            let songTitle = song.title;
+            let songAuthor = song.author;
             let track_duration;
-            if (!all_track) {
-                info_track = await getInfoTrack(song);
 
-                try {
-                    const durationInSeconds = await getMp3Duration(`../audio/${info_track.title}.mp3`);
-                    track_duration = formatDuration(durationInSeconds);
-                } catch (error) {
-                    console.error('Errore nel calcolare la durata:', error);
-                    track_duration = 'N/A';
-                }
-                songItem.innerHTML = `
-        <div class="song-info">
-            <div class="song-title">${info_track.title}</div>
-            <div class="song-author">${info_track.author}</div>
-            <div class="song-duration">${track_duration}</div>
-        </div>
-        <button class="play-button" onclick="playSong(${index})">Play</button>
-                <div class="menu-container">
-        <button class="menu-button" onclick="toggleMenu(${index})">⋮</button>
-        <ul class="menu-options" id="menu-${index}">
-            <li onclick="deleteSong(${index})">Elimina</li>
-            <li onclick="togglePlaylist(${index})">Aggiungi/Rimuovi da Playlist</li>
-        </ul>
-    </div>
-    <div id="playlist-section-${index}" class="playlist-section" style="display: none;">
-        <h3>Seleziona Playlist</h3>
-        <div id="playlist-container-${index}">
-            <!-- Le playlist per questo brano verranno caricate qui -->
-        </div>
-        <div id="divCloseBtn">
-        <button onclick="closePlaylistSection(${index})" id="closeBtn">Chiudi</button>
-        </div>
-        </div>
-    `;
-            } else {
-                try {
-                    const durationInSeconds = await getMp3Duration(`../audio/${song.title}.mp3`);
-                    track_duration = formatDuration(durationInSeconds);
-                } catch (error) {
-                    console.error('Errore nel calcolare la durata:', error);
-                    track_duration = 'N/A';
-                }
-                songItem.innerHTML = `
-        <div class="song-info">
-            <div class="song-title">${song.title}</div>
-            <div class="song-author">${song.author}</div>
-            <div class="song-duration">${track_duration}</div>
-        </div>
-        <button class="play-button" onclick="playSong(${index})">Play</button>
-                <div class="menu-container">
-        <button class="menu-button" onclick="toggleMenu(${index})">⋮</button>
-        <ul class="menu-options" id="menu-${index}">
-            <li onclick="deleteSong(${index})">Elimina</li>
-            <li onclick="togglePlaylist(${index})">Aggiungi/Rimuovi da Playlist</li>
-        </ul>
-    </div>
-    <div id="playlist-section-${index}" class="playlist-section" style="display: none;">
-        <h3>Selezina Playlist</h3>
-        <div id="playlist-container-${index}">
-            <!-- Le playlist per questo brano verranno caricate qui -->
-        </div>
-        <div id="divCloseBtn">
-        <button onclick="closePlaylistSection(${index})" id="closeBtn">Chiudi</button>
-        </div>
-    </div>
-    `;
+            try {
+                const durationInSeconds = await getMp3Duration(`../audio/${songTitle}.mp3`);
+                track_duration = formatDuration(durationInSeconds);
+            } catch (error) {
+                console.error('Errore nel calcolare la durata:', error);
+                track_duration = 'N/A';
             }
-            songListElement.appendChild(songItem);
+
+            songItem.innerHTML = `
+        <div class="song-info">
+            <div class="song-title">${songTitle}</div>
+            <div class="song-author">${songAuthor}</div>
+            <div class="song-duration">${track_duration}</div>
+        </div>
+        <button class="play-button" onclick="playSong(${index})">Play</button>
+        <div class="menu-container">
+            <button class="menu-button" onclick="toggleMenu(${index})">⋮</button>
+            <ul class="menu-options" id="menu-${index}">
+                <li onclick="deleteSong(${index})">Elimina</li>
+                <li onclick="togglePlaylist(${index})">Aggiungi/Rimuovi da Playlist</li>
+            </ul>
+        </div>
+        <div id="playlist-section-${index}" class="playlist-section" style="display: none;">
+            <h3>Seleziona Playlist</h3>
+            <div id="playlist-container-${index}"></div>
+            <button onclick="closePlaylistSection(${index})" id="closeBtn">Chiudi</button>
+        </div>
+    `;
+
+            // Inserisce il brano in ordine alfabetico
+            let items = [...songListElement.children, songItem];
+            items.sort((a, b) => a.querySelector('.song-title').innerText.localeCompare(b.querySelector('.song-title').innerText));
+
+            // Aggiorna la lista con gli elementi ordinati
+            songListElement.innerHTML = '';
+            items.forEach(item => songListElement.appendChild(item));
         }
+
 
         window.closePlaylistSection = function closePlaylistSection(index) {
             const playlistSection = document.getElementById(`playlist-section-${index}`);
