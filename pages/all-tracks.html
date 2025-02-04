@@ -288,15 +288,16 @@
                     }
                 });
 
-                songs = foundPlaylist.tracks;
-
                 if (foundPlaylist) {
-                    // Se troviamo la playlist, stampiamo i brani nel log
+                    // Se troviamo la playlist, otteniamo i brani
                     if (Array.isArray(foundPlaylist.tracks)) {
+                        for (let index = 0; index < foundPlaylist.tracks.length; index++) {
+                            const track = foundPlaylist.tracks[index];
 
-                        foundPlaylist.tracks.forEach((track, index) => {
-                            addSongToList(track, index, false);
-                        });
+                            // Usa await correttamente in un ciclo for...of o for classico
+                            const track_info = await getInfoTrack(track);
+                            addSongToList(track_info, index, false);
+                        }
                     } else {
                         console.log(`Nessun brano trovato nella playlist: ${playlistName}`);
                     }
@@ -356,7 +357,6 @@
             return new Promise((resolve, reject) => {
                 const audio = new Audio();
                 audio.src = filePath;
-
                 // Aspetta che i metadati siano caricati
                 audio.addEventListener('loadedmetadata', () => {
                     resolve(audio.duration); // Durata in secondi
