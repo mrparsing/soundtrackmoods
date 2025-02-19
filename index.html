@@ -159,6 +159,19 @@
     }
     document.addEventListener('DOMContentLoaded', getTracks);
 
+    async function checkUrlStatus(url) {
+        try {
+            const response = await fetch(url);
+
+            if (response.status === 404) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            console.error(`Errore durante la richiesta all'URL ${url}:`, error);
+        }
+    }
 
     function loadPlaylistsFromAuthors(author) {
         // Sezione dove aggiungere le playlist
@@ -171,7 +184,8 @@
 
         // Imposta l'immagine della playlist (default se l'autore è vuoto)
         let img_src = `assets/${author}.jpg`;
-        if (author === "") {
+
+        if (checkUrlStatus(url)) {
             img_src = `assets/default.jpg`;
         }
 
@@ -229,7 +243,6 @@
                 `;
 
         playlistSection.appendChild(playlistDiv);
-
     }
 </script>
 
