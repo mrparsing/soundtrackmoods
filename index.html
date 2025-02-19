@@ -173,7 +173,7 @@
         }
     }
 
-    function loadPlaylistsFromAuthors(author) {
+    async function loadPlaylistsFromAuthors(author) {
         // Sezione dove aggiungere le playlist
         const playlistSection = document.querySelector('.playlist-section-author');
 
@@ -185,7 +185,7 @@
         // Imposta l'immagine della playlist (default se l'autore è vuoto)
         let img_src = `assets/${author}.jpg`;
 
-        let isUrl = checkUrlStatus("https://soundtrackmoods.web.app/assets/" + author + ".jpg");
+        let isUrl = await checkUrlStatus("https://soundtrackmoods.web.app/assets/" + author + ".jpg");
         console.log("CIAO", isUrl, author);
         if (isUrl) {
             img_src = `assets/default.jpg`;
