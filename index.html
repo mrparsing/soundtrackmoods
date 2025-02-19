@@ -185,8 +185,9 @@
         // Imposta l'immagine della playlist (default se l'autore è vuoto)
         let img_src = `assets/${author}.jpg`;
 
-        console.log(author);
-        if (checkUrlStatus("https://soundtrackmoods.web.app/assets/" + author + ".jpg")) {
+        let isUrl = checkUrlStatus("https://soundtrackmoods.web.app/assets/" + author + ".jpg");
+        console.log("CIAO", isUrl, author);
+        if (isUrl) {
             img_src = `assets/default.jpg`;
         }
 
